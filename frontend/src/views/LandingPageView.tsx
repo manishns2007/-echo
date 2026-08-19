@@ -11,11 +11,7 @@ import {
   Lock,
   User,
   ChevronRight,
-  Activity,
   AlertTriangle,
-  Database,
-  Cpu,
-  Radio,
   Clock,
 } from 'lucide-react';
 
@@ -176,10 +172,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onNavigate }) 
                   className="w-full flex items-center gap-3 px-3 py-2.5 rounded hover:bg-white/[0.05] text-left text-slate-400 hover:text-slate-100 transition-colors group"
                 >
                   <Icon className="w-5 h-5 text-slate-500 group-hover:text-cyan-400 transition-colors shrink-0" />
-                  <div>
-                    <div className="text-[13px] font-medium text-slate-300 group-hover:text-slate-100">{m.label}</div>
-                    <div className="text-[10px] text-slate-600">{m.desc}</div>
-                  </div>
+                  <span className="text-[13px] font-medium text-slate-300 group-hover:text-slate-100">{m.label}</span>
                 </button>
               );
             })}
@@ -199,30 +192,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onNavigate }) 
             </div>
           </button>
 
-          {/* System indicators */}
-          <div className="mt-auto space-y-2">
-            <div className="flex items-center justify-between text-[10px] font-mono text-slate-600">
-              <div className="flex items-center gap-1.5">
-                <Cpu className="w-3 h-3" />
-                <span>Backend</span>
-              </div>
-              <span className="text-emerald-500">ONLINE :8000</span>
-            </div>
-            <div className="flex items-center justify-between text-[10px] font-mono text-slate-600">
-              <div className="flex items-center gap-1.5">
-                <Database className="w-3 h-3" />
-                <span>Evidence Vault</span>
-              </div>
-              <span className="text-emerald-500">SEALED</span>
-            </div>
-            <div className="flex items-center justify-between text-[10px] font-mono text-slate-600">
-              <div className="flex items-center gap-1.5">
-                <Radio className="w-3 h-3" />
-                <span>Live Feed</span>
-              </div>
-              <span className="text-cyan-500 animate-pulse">STREAMING</span>
-            </div>
-          </div>
+          {/* System indicators removed */}
         </div>
 
         {/* ════════════════════════════════
@@ -272,15 +242,6 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onNavigate }) 
             Sign In as Investigator
             <ChevronRight className="w-4 h-4" />
           </button>
-
-          {/* Recent activity ticker */}
-          <div className="w-full max-w-xl rounded border border-white/[0.06] bg-white/[0.02] px-4 py-3 flex items-center gap-3">
-            <Activity className="w-3.5 h-3.5 text-slate-500 shrink-0 animate-pulse" />
-            <div className="text-[11px] font-mono text-slate-500 truncate">
-              <span className="text-slate-400">LATEST · </span>
-              FUSION ALERT ALT-8841 &mdash; INDRA_47 cross-platform identity correlated at 91% confidence across SimulatedMarket-A and Telegram @indra_ops
-            </div>
-          </div>
         </div>
       </div>
 
