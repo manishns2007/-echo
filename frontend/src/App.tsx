@@ -40,6 +40,7 @@ const PATH_TO_VIEW: Record<string, string> = {
   '/home': 'home',
   '/command-center': 'home',
   '/investigation-panel': 'investigations',
+  '/investigation': 'investigations',
   '/investigations': 'investigations',
   '/agents': 'agents',
   '/network-graph': 'agents',
@@ -212,6 +213,17 @@ export function App() {
     navigateTo('report-generation');
   };
 
+  // If on Landing Page (/), render full-screen standalone portal
+  if (activeView === 'landing') {
+    return (
+      <LandingPageView
+        onNavigate={navigateTo}
+        onSelectEntity={handleSelectEntity}
+        onStartDemoTour={handleStartDemoTour}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#070B11] text-slate-100 flex flex-col font-sans selection:bg-cyan-500/30 selection:text-cyan-200">
       {/* Clean Top Navbar */}
@@ -248,18 +260,6 @@ export function App() {
 
         {/* Main Dedicated Content View Area */}
         <main className="flex-1 overflow-y-auto p-6 md:p-8 bg-[#070B11]">
-          {/* 0. Landing Page Portal: localhost:5173/ */}
-          {activeView === 'landing' && (
-            <LandingPageView
-              stats={stats}
-              alerts={alerts}
-              onNavigate={navigateTo}
-              onSelectEntity={handleSelectEntity}
-              onStartDemoTour={handleStartDemoTour}
-              onOpenAssistant={() => setIsAssistantOpen(true)}
-            />
-          )}
-
           {/* 1. Home / Operations Hub: localhost:5173/home */}
           {(activeView === 'home' || activeView === 'command-center') && (
             <CommandCenter
@@ -281,7 +281,7 @@ export function App() {
             />
           )}
 
-          {/* 3. Agents / Suspect Network Graph: localhost:5173/agents */}
+          {/* 3. Agents & Network Graph: localhost:5173/agents */}
           {(activeView === 'agents' || activeView === 'network-graph') && (
             <div className="space-y-4 font-mono max-w-7xl mx-auto">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
