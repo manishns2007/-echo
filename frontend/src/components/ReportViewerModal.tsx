@@ -99,7 +99,7 @@ export const ReportViewerModal: React.FC<ReportViewerModalProps> = ({
                 Intelligence Fusion Operations Center | State Inter-Agency Coordination
               </div>
               <div className="text-slate-500 text-[10px]">
-                Generated: {reportData.generated_timestamp} | System: NARCO-FUSION v1.0.4
+                Generated: {reportData.generated_timestamp} | System: NARC-OSINT v1.0.4
               </div>
             </div>
             <div className="text-right font-mono text-[11px] space-y-1">

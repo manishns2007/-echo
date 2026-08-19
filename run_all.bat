@@ -1,17 +1,17 @@
 @echo off
-title NARCO-FUSION Intelligence Platform Launcher
-echo =======================================================================
-echo    NARCO-FUSION | Dark Web & Encrypted Drug Intelligence Platform
+title NARC-OSINT Intelligence Platform Launcher
+echo ========================================================
+echo    NARC-OSINT | Dark Web & Encrypted Drug Intelligence Platform
 echo    Chandigarh Police Hackathon - Track 3 (Grapnel-Inspired Fusion)
-echo =======================================================================
-echo.
-echo Starting FastAPI Backend on http://127.0.0.1:8000 ...
-start "Narco-Fusion Backend (FastAPI)" cmd /k "cd backend && py seed_data.py && py -m uvicorn main:app --host 127.0.0.1 --port 8000 --reload"
+echo ========================================================
 
-timeout /t 2 >nul
+echo Starting FastAPI Backend (Port 8000)...
+start "NARC-OSINT Backend (FastAPI)" cmd /k "cd backend && py seed_data.py && py -m uvicorn main:app --host 127.0.0.1 --port 8000 --reload"
 
-echo Starting React + Vite Operations Center UI on http://localhost:5173 ...
-start "Narco-Fusion Frontend (Vite)" cmd /k "cd frontend && npm run dev"
+timeout /t 3 /nobreak >nul
+
+echo Starting Vite Frontend (Port 5173)...
+start "NARC-OSINT Frontend (Vite)" cmd /k "cd frontend && npm run dev"
 
 echo.
 echo =======================================================================

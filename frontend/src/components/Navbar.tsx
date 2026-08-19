@@ -54,7 +54,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
         <div className="leading-tight">
           <div className="text-[13px] font-semibold tracking-[0.08em] text-slate-100 font-mono">
-            NARCO-FUSION
+            NARC-OSINT
           </div>
           <div className="text-[10px] text-slate-500 tracking-wide hidden sm:block">
             Chandigarh Police · Cyber Narcotics Division
