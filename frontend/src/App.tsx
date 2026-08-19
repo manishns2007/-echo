@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Navbar } from './components/Navbar';
 import { Sidebar } from './components/Sidebar';
 import { DemoTourBar, DEMO_STEPS } from './components/DemoTourBar';
@@ -19,6 +19,7 @@ import { EntityProfileDetail } from './views/EntityProfileDetail';
 import { CryptoIntelligenceView } from './views/CryptoIntelligenceView';
 import { EncryptedPlatformView } from './views/EncryptedPlatformView';
 import { InvestigationWorkspaceView } from './views/InvestigationWorkspaceView';
+import { ReportGenerationView } from './views/ReportGenerationView';
 import { EvidenceVaultView } from './views/EvidenceVaultView';
 import { TimelineView } from './views/TimelineView';
 import { CorrelationSimulatorView } from './views/CorrelationSimulatorView';
@@ -32,8 +33,64 @@ import {
 } from './types/intelligence';
 import { api } from './services/api';
 
+// URL Path to View ID Mapping
+const PATH_TO_VIEW: Record<string, string> = {
+  '/': 'landing',
+  '/landing': 'landing',
+  '/home': 'home',
+  '/command-center': 'home',
+  '/investigation-panel': 'investigations',
+  '/investigations': 'investigations',
+  '/agents': 'agents',
+  '/network-graph': 'agents',
+  '/report-generation': 'report-generation',
+  '/reports': 'report-generation',
+  '/entities': 'entity-intel',
+  '/entity-intel': 'entity-intel',
+  '/entity-detail': 'entity-detail',
+  '/crypto': 'crypto-intel',
+  '/crypto-intel': 'crypto-intel',
+  '/drugs': 'drug-intel',
+  '/drug-intel': 'drug-intel',
+  '/comms': 'encrypted-platforms',
+  '/encrypted-platforms': 'encrypted-platforms',
+  '/alerts': 'alert-center',
+  '/alert-center': 'alert-center',
+  '/live-feed': 'live-feed',
+  '/timeline': 'timeline',
+  '/evidence': 'evidence-vault',
+  '/evidence-vault': 'evidence-vault',
+  '/correlation': 'correlation-engine',
+  '/correlation-engine': 'correlation-engine'
+};
+
+const VIEW_TO_PATH: Record<string, string> = {
+  'landing': '/',
+  'home': '/home',
+  'command-center': '/home',
+  'investigations': '/investigation-panel',
+  'agents': '/agents',
+  'network-graph': '/agents',
+  'report-generation': '/report-generation',
+  'entity-intel': '/entities',
+  'entity-detail': '/entity-detail',
+  'crypto-intel': '/crypto',
+  'drug-intel': '/drugs',
+  'encrypted-platforms': '/comms',
+  'alert-center': '/alerts',
+  'live-feed': '/live-feed',
+  'timeline': '/timeline',
+  'evidence-vault': '/evidence',
+  'correlation-engine': '/correlation'
+};
+
+function getInitialView(): string {
+  const path = window.location.pathname.toLowerCase();
+  return PATH_TO_VIEW[path] || 'landing';
+}
+
 export function App() {
-  const [activeView, setActiveView] = useState<string>('landing');
+  const [activeView, setActiveView] = useState<string>(getInitialView);
   const [selectedEntityId, setSelectedEntityId] = useState<string>('ENTITY-0047');
   const [selectedCaseId, setSelectedCaseId] = useState<string>('CASE-CHD-0047');
   const [selectedWalletAddress, setSelectedWalletAddress] = useState<string>('bc1q92fa8839dfca112048aaef82');
@@ -58,7 +115,31 @@ export function App() {
   const [entities, setEntities] = useState<EntitySummary[]>([]);
   const [graphData, setGraphData] = useState<NetworkGraphData | null>(null);
 
-  // Initial load
+  // Sync state with URL navigation
+  const navigateTo = useCallback((view: string, updateUrl: boolean = true) => {
+    const targetView = PATH_TO_VIEW[view] || view;
+    setActiveView(targetView);
+    if (updateUrl) {
+      const targetPath = VIEW_TO_PATH[targetView] || `/${targetView}`;
+      if (window.location.pathname !== targetPath) {
+        window.history.pushState({ view: targetView }, '', targetPath);
+      }
+    }
+  }, []);
+
+  // Listen to browser Back/Forward buttons
+  useEffect(() => {
+    const handlePopState = () => {
+      const currentPath = window.location.pathname.toLowerCase();
+      const matchedView = PATH_TO_VIEW[currentPath] || 'landing';
+      setActiveView(matchedView);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // Initial data fetch
   useEffect(() => {
     const initApp = async () => {
       try {
@@ -99,14 +180,8 @@ export function App() {
     const stepObj = DEMO_STEPS[stepNum - 1];
     if (!stepObj) return;
 
-    if (stepObj.targetView === 'report-view') {
-      try {
-        const rep = await api.getFormalReport(stepObj.caseId || 'CASE-CHD-0047');
-        setReportData(rep);
-        setIsReportOpen(true);
-      } catch (err) {
-        console.error(err);
-      }
+    if (stepObj.targetView === 'report-view' || stepObj.targetView === 'report-generation') {
+      navigateTo('report-generation');
       return;
     }
 
@@ -114,7 +189,7 @@ export function App() {
     if (stepObj.caseId) setSelectedCaseId(stepObj.caseId);
     if (stepObj.walletAddress) setSelectedWalletAddress(stepObj.walletAddress);
 
-    setActiveView(stepObj.targetView);
+    navigateTo(stepObj.targetView);
   };
 
   const handleStartDemoTour = () => {
@@ -124,22 +199,17 @@ export function App() {
 
   const handleSelectEntity = (id: string) => {
     setSelectedEntityId(id);
-    setActiveView('entity-detail');
+    navigateTo('entity-detail');
   };
 
   const handleSelectAlert = (id: string) => {
     setSelectedAlertId(id);
-    setActiveView('alert-center');
+    navigateTo('alert-center');
   };
 
   const handleGenerateReport = async (caseId: string) => {
-    try {
-      const rep = await api.getFormalReport(caseId);
-      setReportData(rep);
-      setIsReportOpen(true);
-    } catch (err) {
-      console.error(err);
-    }
+    setSelectedCaseId(caseId);
+    navigateTo('report-generation');
   };
 
   return (
@@ -154,7 +224,7 @@ export function App() {
         onOpenAudit={() => setIsAuditOpen(true)}
         onSelectEntity={handleSelectEntity}
         activeView={activeView}
-        onNavigate={setActiveView}
+        onNavigate={navigateTo}
         isDemoOpen={isDemoOpen}
         onToggleDemo={() => setIsDemoOpen(!isDemoOpen)}
       />
@@ -172,42 +242,52 @@ export function App() {
         {/* Left Sidebar */}
         <Sidebar
           activeView={activeView}
-          onNavigate={setActiveView}
+          onNavigate={navigateTo}
           alertCount={alerts.length}
         />
 
         {/* Main Dedicated Content View Area */}
         <main className="flex-1 overflow-y-auto p-6 md:p-8 bg-[#070B11]">
-          {/* 0. Landing Page / Options Hub */}
+          {/* 0. Landing Page Portal: localhost:5173/ */}
           {activeView === 'landing' && (
             <LandingPageView
               stats={stats}
               alerts={alerts}
-              onNavigate={setActiveView}
+              onNavigate={navigateTo}
               onSelectEntity={handleSelectEntity}
               onStartDemoTour={handleStartDemoTour}
               onOpenAssistant={() => setIsAssistantOpen(true)}
             />
           )}
 
-          {/* 1. Home / Central Operations Hub */}
-          {activeView === 'command-center' && (
+          {/* 1. Home / Operations Hub: localhost:5173/home */}
+          {(activeView === 'home' || activeView === 'command-center') && (
             <CommandCenter
               stats={stats}
               alerts={alerts}
-              onNavigate={setActiveView}
+              onNavigate={navigateTo}
               onSelectEntity={handleSelectEntity}
               onSelectAlert={handleSelectAlert}
             />
           )}
 
-          {/* 2. Dedicated Cytoscape Network Graph Page */}
-          {activeView === 'network-graph' && (
+          {/* 2. Investigation Workspace: localhost:5173/investigation-panel */}
+          {activeView === 'investigations' && (
+            <InvestigationWorkspaceView
+              initialCaseId={selectedCaseId}
+              onGenerateReport={handleGenerateReport}
+              onSelectEntity={handleSelectEntity}
+              onNavigate={navigateTo}
+            />
+          )}
+
+          {/* 3. Agents / Suspect Network Graph: localhost:5173/agents */}
+          {(activeView === 'agents' || activeView === 'network-graph') && (
             <div className="space-y-4 font-mono max-w-7xl mx-auto">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
                 <div>
                   <h1 className="text-xl font-bold text-slate-100 uppercase tracking-tight">
-                    Network Intelligence Graph
+                    Agents & Network Intelligence Graph
                   </h1>
                   <p className="text-xs text-slate-400 mt-0.5">
                     Multi-source Cytoscape.js correlation topology linking suspects, crypto wallets, and encrypted handles
@@ -227,17 +307,16 @@ export function App() {
             </div>
           )}
 
-          {/* 3. Dedicated Investigation Workspace Page */}
-          {activeView === 'investigations' && (
-            <InvestigationWorkspaceView
+          {/* 4. Report Generation Studio: localhost:5173/report-generation */}
+          {activeView === 'report-generation' && (
+            <ReportGenerationView
               initialCaseId={selectedCaseId}
-              onGenerateReport={handleGenerateReport}
+              onNavigate={navigateTo}
               onSelectEntity={handleSelectEntity}
-              onNavigate={setActiveView}
             />
           )}
 
-          {/* 4. Dedicated Entity Directory Page */}
+          {/* 5. Dedicated Entity Directory: localhost:5173/entities */}
           {activeView === 'entity-intel' && (
             <EntityIntelligenceView
               entities={entities}
@@ -245,31 +324,31 @@ export function App() {
             />
           )}
 
-          {/* 5. Dedicated Entity 360 Profile Page */}
+          {/* 6. Dedicated Entity 360 Profile: localhost:5173/entity-detail */}
           {activeView === 'entity-detail' && (
             <EntityProfileDetail
               entityId={selectedEntityId}
-              onBack={() => setActiveView('entity-intel')}
-              onNavigate={setActiveView}
+              onBack={() => navigateTo('entity-intel')}
+              onNavigate={navigateTo}
               onSelectEntity={handleSelectEntity}
             />
           )}
 
-          {/* 6. Dedicated Alert Center Page */}
+          {/* 7. Dedicated Alert Center: localhost:5173/alerts */}
           {activeView === 'alert-center' && (
             <AlertCenterView
               onSelectAlert={setSelectedAlertId}
-              onNavigate={setActiveView}
+              onNavigate={navigateTo}
               onSelectEntity={handleSelectEntity}
             />
           )}
 
-          {/* 7. Dedicated Drug Analytics Page */}
+          {/* 8. Dedicated Drug Analytics: localhost:5173/drugs */}
           {activeView === 'drug-intel' && (
             <DrugIntelligenceView />
           )}
 
-          {/* 8. Dedicated Cryptocurrency Tracker Page */}
+          {/* 9. Dedicated Cryptocurrency Tracker: localhost:5173/crypto */}
           {activeView === 'crypto-intel' && (
             <CryptoIntelligenceView
               initialWallet={selectedWalletAddress}
@@ -277,34 +356,34 @@ export function App() {
             />
           )}
 
-          {/* 9. Dedicated Encrypted Platforms Page */}
+          {/* 10. Dedicated Encrypted Platforms: localhost:5173/comms */}
           {activeView === 'encrypted-platforms' && (
             <EncryptedPlatformView
               onSelectEntity={handleSelectEntity}
             />
           )}
 
-          {/* 10. Dedicated Live Intel Stream Page */}
+          {/* 11. Dedicated Live Intel Stream: localhost:5173/live-feed */}
           {activeView === 'live-feed' && (
             <LiveFeedView />
           )}
 
-          {/* 11. Dedicated Timeline Escalation Page */}
+          {/* 12. Dedicated Timeline Escalation: localhost:5173/timeline */}
           {activeView === 'timeline' && (
             <TimelineView />
           )}
 
-          {/* 12. Dedicated Evidence Vault Page */}
+          {/* 13. Dedicated Evidence Vault: localhost:5173/evidence */}
           {activeView === 'evidence-vault' && (
             <EvidenceVaultView />
           )}
 
-          {/* 13. Dedicated Correlation Rule Engine Page */}
+          {/* 14. Dedicated Correlation Rule Engine: localhost:5173/correlation */}
           {activeView === 'correlation-engine' && (
             <CorrelationSimulatorView />
           )}
 
-          {/* 14. Audit Logs */}
+          {/* 15. Audit Logs */}
           {activeView === 'audit-logs' && (
             <div className="p-8 bg-slate-900/80 rounded-2xl border border-slate-800 space-y-4 max-w-2xl mx-auto text-center font-mono">
               <h2 className="text-base font-bold text-slate-100">Tamper-Evident System Audit Logs</h2>
@@ -327,7 +406,7 @@ export function App() {
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
         onSelectEntity={handleSelectEntity}
-        onNavigate={setActiveView}
+        onNavigate={navigateTo}
       />
 
       {/* AI Investigator Assistant Drawer */}

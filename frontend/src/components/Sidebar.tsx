@@ -14,7 +14,7 @@ import {
   Clock, 
   History, 
   BellRing,
-  Sparkles
+  FileText
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -32,30 +32,31 @@ export const Sidebar: React.FC<SidebarProps> = ({
     {
       title: "PORTAL & DASHBOARD",
       items: [
-        { id: 'landing', label: 'Landing Portal', icon: Home, badge: null },
-        { id: 'command-center', label: 'Command Center', icon: LayoutDashboard, badge: null },
-        { id: 'live-feed', label: 'Live Intel Stream', icon: Radio, badge: 'LIVE' },
-        { id: 'alert-center', label: 'Alert Triage Center', icon: BellRing, badge: alertCount ? `${alertCount}` : null, badgeColor: 'bg-rose-950 text-rose-300 border-rose-800' }
+        { id: 'landing', path: '/', label: 'Landing Portal', icon: Home, badge: null },
+        { id: 'home', path: '/home', label: 'Command Center', icon: LayoutDashboard, badge: null },
+        { id: 'live-feed', path: '/live-feed', label: 'Live Intel Stream', icon: Radio, badge: 'LIVE' },
+        { id: 'alert-center', path: '/alerts', label: 'Alert Triage Center', icon: BellRing, badge: alertCount ? `${alertCount}` : null, badgeColor: 'bg-rose-950 text-rose-300 border-rose-800' }
       ]
     },
     {
       title: "INTELLIGENCE FUSION",
       items: [
-        { id: 'network-graph', label: 'Network Graph', icon: Share2, badge: '6 Views' },
-        { id: 'entity-intel', label: 'Suspect 360° Directory', icon: Users, badge: null },
-        { id: 'crypto-intel', label: 'Cryptocurrency Tracker', icon: Coins, badge: null },
-        { id: 'drug-intel', label: 'Drug Analytics & Listings', icon: Pill, badge: null },
-        { id: 'encrypted-platforms', label: 'Encrypted Platform Comms', icon: MessageSquareCode, badge: null },
-        { id: 'correlation-engine', label: 'Correlation Rule Engine', icon: Sliders, badge: null }
+        { id: 'agents', path: '/agents', label: 'Agents & Network Graph', icon: Share2, badge: '6 Views' },
+        { id: 'entity-intel', path: '/entities', label: 'Suspect 360° Directory', icon: Users, badge: null },
+        { id: 'crypto-intel', path: '/crypto', label: 'Cryptocurrency Tracker', icon: Coins, badge: null },
+        { id: 'drug-intel', path: '/drugs', label: 'Drug Analytics & Listings', icon: Pill, badge: null },
+        { id: 'encrypted-platforms', path: '/comms', label: 'Encrypted Platform Comms', icon: MessageSquareCode, badge: null },
+        { id: 'correlation-engine', path: '/correlation', label: 'Correlation Rule Engine', icon: Sliders, badge: null }
       ]
     },
     {
       title: "CASES & EVIDENCE",
       items: [
-        { id: 'investigations', label: 'Case Workspace (CHD-0047)', icon: Briefcase, badge: 'ACTIVE', badgeColor: 'bg-emerald-950 text-emerald-300 border-emerald-800' },
-        { id: 'timeline', label: 'Timeline Escalation', icon: Clock, badge: null },
-        { id: 'evidence-vault', label: 'Evidence Vault (SHA-256)', icon: Database, badge: null },
-        { id: 'audit-logs', label: 'Tamper-Evident Audit', icon: History, badge: null }
+        { id: 'investigations', path: '/investigation-panel', label: 'Investigation Panel', icon: Briefcase, badge: 'ACTIVE', badgeColor: 'bg-emerald-950 text-emerald-300 border-emerald-800' },
+        { id: 'report-generation', path: '/report-generation', label: 'Report Generation', icon: FileText, badge: 'OFFICIAL' },
+        { id: 'timeline', path: '/timeline', label: 'Timeline Escalation', icon: Clock, badge: null },
+        { id: 'evidence-vault', path: '/evidence', label: 'Evidence Vault (SHA-256)', icon: Database, badge: null },
+        { id: 'audit-logs', path: '/audit', label: 'Tamper-Evident Audit', icon: History, badge: null }
       ]
     }
   ];
@@ -70,7 +71,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
             {sec.items.map((item) => {
               const Icon = item.icon;
-              const isActive = activeView === item.id;
+              const isActive = activeView === item.id || (item.id === 'home' && activeView === 'command-center') || (item.id === 'agents' && activeView === 'network-graph');
               return (
                 <button
                   key={item.id}
