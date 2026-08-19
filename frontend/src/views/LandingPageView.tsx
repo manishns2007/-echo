@@ -41,12 +41,6 @@ const ROLES = [
   },
 ];
 
-const MODULES = [
-  { id: 'home', label: 'Command Center', icon: LayoutDashboard, desc: 'Operations overview & live alerts' },
-  { id: 'investigations', label: 'Investigations', icon: Briefcase, desc: 'Active case files & evidence' },
-  { id: 'agents', label: 'Network Graph', icon: Share2, desc: 'Entity relationship visualizer' },
-  { id: 'report-generation', label: 'Report Studio', icon: FileText, desc: 'Official intelligence dossiers' },
-];
 
 const TICKER_ITEMS = [
   { label: 'ACTIVE CASES', value: '2', color: 'text-cyan-400' },
