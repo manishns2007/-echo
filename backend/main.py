@@ -50,6 +50,15 @@ class CorrelationComputeRequest(BaseModel):
 @app.on_event("startup")
 def startup_event():
     init_db()
+    # Auto-seed if database is empty (first deploy on Render / fresh instance)
+    from database import get_db as _get_db
+    _conn = _get_db()
+    row = _conn.execute("SELECT COUNT(*) FROM entities").fetchone()
+    _conn.close()
+    if row[0] == 0:
+        from seed_data import seed_database
+        seed_database()
+        print("[startup] Database was empty — seeded with demo dataset.")
 
 # ----------------- 1. STATS & COMMAND CENTER -----------------
 @app.get("/api/stats")
