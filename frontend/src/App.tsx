@@ -9,6 +9,7 @@ import { ReportViewerModal } from './components/ReportViewerModal';
 import { NetworkGraph } from './components/NetworkGraph';
 
 // Dedicated Views
+import { LandingPageView } from './views/LandingPageView';
 import { CommandCenter } from './views/CommandCenter';
 import { LiveFeedView } from './views/LiveFeedView';
 import { AlertCenterView } from './views/AlertCenterView';
@@ -32,7 +33,7 @@ import {
 import { api } from './services/api';
 
 export function App() {
-  const [activeView, setActiveView] = useState<string>('command-center');
+  const [activeView, setActiveView] = useState<string>('landing');
   const [selectedEntityId, setSelectedEntityId] = useState<string>('ENTITY-0047');
   const [selectedCaseId, setSelectedCaseId] = useState<string>('CASE-CHD-0047');
   const [selectedWalletAddress, setSelectedWalletAddress] = useState<string>('bc1q92fa8839dfca112048aaef82');
@@ -116,6 +117,11 @@ export function App() {
     setActiveView(stepObj.targetView);
   };
 
+  const handleStartDemoTour = () => {
+    setIsDemoOpen(true);
+    handleSelectDemoStep(1);
+  };
+
   const handleSelectEntity = (id: string) => {
     setSelectedEntityId(id);
     setActiveView('entity-detail');
@@ -172,6 +178,18 @@ export function App() {
 
         {/* Main Dedicated Content View Area */}
         <main className="flex-1 overflow-y-auto p-6 md:p-8 bg-[#070B11]">
+          {/* 0. Landing Page / Options Hub */}
+          {activeView === 'landing' && (
+            <LandingPageView
+              stats={stats}
+              alerts={alerts}
+              onNavigate={setActiveView}
+              onSelectEntity={handleSelectEntity}
+              onStartDemoTour={handleStartDemoTour}
+              onOpenAssistant={() => setIsAssistantOpen(true)}
+            />
+          )}
+
           {/* 1. Home / Central Operations Hub */}
           {activeView === 'command-center' && (
             <CommandCenter
@@ -197,7 +215,7 @@ export function App() {
                 </div>
                 <div className="flex items-center space-x-2">
                   <span className="text-xs px-2.5 py-1 rounded bg-rose-950 text-rose-300 border border-rose-800 font-bold">
-                    Cluster: INDRA_47 (87/100)
+                    Target: INDRA_47 (87/100)
                   </span>
                 </div>
               </div>
