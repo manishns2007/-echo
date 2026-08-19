@@ -1,12 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Shield, 
-  Search, 
-  Sparkles, 
-  History, 
-  Radio, 
-  Zap,
-  ChevronRight
+import React from 'react';
+import {
+  Shield,
+  Search,
+  Sparkles,
+  ClipboardList,
+  Radio,
 } from 'lucide-react';
 import { SystemStats } from '../types/intelligence';
 
@@ -31,109 +29,94 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenSearch,
   onOpenAssistant,
   onOpenAudit,
-  activeView,
   onNavigate,
-  isDemoOpen,
-  onToggleDemo
 }) => {
+  const threatScore = stats?.threat_score ?? 87;
+  const threatLabel = threatScore >= 85 ? 'CRITICAL' : threatScore >= 65 ? 'HIGH' : 'MODERATE';
+  const threatColor =
+    threatScore >= 85
+      ? 'text-rose-400 border-rose-800/70 bg-rose-950/30'
+      : threatScore >= 65
+      ? 'text-amber-400 border-amber-800/70 bg-amber-950/30'
+      : 'text-emerald-400 border-emerald-800/70 bg-emerald-950/30';
+
   return (
-    <header className="h-16 bg-[#080D16] border-b border-slate-800/90 sticky top-0 z-40 px-6 flex items-center justify-between">
-      {/* Brand Identity */}
-      <div className="flex items-center space-x-3.5">
-        <div 
-          className="flex items-center space-x-3 cursor-pointer group" 
-          onClick={() => onNavigate('command-center')}
-        >
-          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-cyan-600/20 to-blue-700/30 border border-cyan-500/40 flex items-center justify-center text-cyan-400 group-hover:border-cyan-400 transition-all shadow-inner">
-            <Shield className="w-5 h-5" />
+    <header className="h-14 bg-[#06090F] border-b border-white/[0.06] sticky top-0 z-40 flex items-center justify-between px-5 gap-4">
+
+      {/* ── Brand ── */}
+      <button
+        onClick={() => onNavigate('home')}
+        className="flex items-center gap-3 shrink-0 group"
+      >
+        <div className="w-8 h-8 rounded bg-cyan-500/10 border border-cyan-500/25 flex items-center justify-center group-hover:border-cyan-400/50 transition-colors">
+          <Shield className="w-4 h-4 text-cyan-400" />
+        </div>
+        <div className="leading-tight">
+          <div className="text-[13px] font-semibold tracking-[0.08em] text-slate-100 font-mono">
+            NARCO-FUSION
           </div>
-          <div>
-            <div className="flex items-center space-x-2">
-              <span className="font-mono font-bold text-slate-100 text-sm tracking-wider">NARCO-FUSION</span>
-              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-cyan-950/80 text-cyan-400 border border-cyan-800 uppercase font-semibold">
-                OPS
-              </span>
-            </div>
-            <p className="text-[10px] text-slate-400 font-mono tracking-tight hidden sm:block">
-              Chandigarh Police Cyber Narcotics Intelligence
-            </p>
+          <div className="text-[10px] text-slate-500 tracking-wide hidden sm:block">
+            Chandigarh Police · Cyber Narcotics Division
           </div>
         </div>
+      </button>
 
-        {/* Threat Level */}
-        <div className="hidden lg:flex items-center pl-5 border-l border-slate-800">
-          <div className="flex items-center space-x-2 px-2.5 py-1 rounded-md bg-rose-950/40 border border-rose-800/60 text-rose-300">
-            <Radio className="w-3.5 h-3.5 text-rose-400 animate-pulse" />
-            <span className="font-mono text-xs font-semibold tracking-wide">THREAT: CRITICAL</span>
-            <span className="font-mono text-[11px] bg-rose-900/60 px-1 rounded text-rose-200">
-              {stats?.threat_score || 87}/100
-            </span>
-          </div>
-        </div>
+      {/* ── Threat indicator (separator) ── */}
+      <div className={`hidden lg:flex items-center gap-2 px-3 py-1.5 rounded border text-[11px] font-mono font-medium tracking-wider ${threatColor} ml-2`}>
+        <Radio className="w-3 h-3 animate-pulse" />
+        <span>THREAT LEVEL</span>
+        <span className="opacity-60">/</span>
+        <span className="font-bold">{threatLabel}</span>
+        <span className="opacity-50 text-[10px]">{threatScore}</span>
       </div>
 
-      {/* Center: Global Search Bar */}
-      <div className="flex-1 max-w-md mx-6 hidden md:block">
-        <button
-          onClick={onOpenSearch}
-          className="w-full flex items-center justify-between px-3.5 py-1.5 rounded-lg bg-slate-900/90 border border-slate-800 hover:border-cyan-500/50 text-slate-400 hover:text-slate-200 transition-all text-xs font-mono group"
-        >
-          <div className="flex items-center space-x-2">
-            <Search className="w-3.5 h-3.5 text-slate-500 group-hover:text-cyan-400 transition-colors" />
-            <span>Search suspect, wallet, @handle, case, exhibit...</span>
-          </div>
-          <kbd className="px-1.5 py-0.5 text-[10px] rounded bg-slate-800 text-slate-400 border border-slate-700">
-            Ctrl+K
-          </kbd>
-        </button>
-      </div>
+      {/* ── Global Search (centre) ── */}
+      <button
+        onClick={onOpenSearch}
+        className="flex-1 max-w-sm hidden md:flex items-center gap-2.5 px-3.5 py-2 rounded bg-white/[0.03] border border-white/[0.07] hover:border-cyan-500/30 hover:bg-white/[0.05] transition-all text-slate-500 hover:text-slate-300 text-[11px] font-mono"
+      >
+        <Search className="w-3.5 h-3.5 shrink-0" />
+        <span className="flex-1 text-left">Search entity, wallet, case, exhibit…</span>
+        <kbd className="px-1.5 py-0.5 text-[9px] rounded bg-white/[0.06] border border-white/[0.08] text-slate-500">
+          Ctrl K
+        </kbd>
+      </button>
 
-      {/* Right Tools & Role Controls */}
-      <div className="flex items-center space-x-3">
-        {/* Demo Tour Toggle Pill */}
-        <button
-          onClick={onToggleDemo}
-          className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg text-xs font-mono transition-all border ${
-            isDemoOpen
-              ? 'bg-amber-950/60 border-amber-500/60 text-amber-300'
-              : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200'
-          }`}
-        >
-          <Zap className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-          <span className="hidden sm:inline">10-Step Tour</span>
-        </button>
+      {/* ── Right controls ── */}
+      <div className="flex items-center gap-2 shrink-0">
 
-        {/* Grounded AI Assistant */}
+        {/* AI Assistant */}
         <button
           onClick={onOpenAssistant}
-          className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-cyan-950 to-blue-950 border border-cyan-700/50 hover:border-cyan-400 text-cyan-300 text-xs font-mono transition-all shadow-sm"
+          className="flex items-center gap-2 px-3 py-1.5 rounded border border-cyan-700/40 bg-cyan-950/30 hover:border-cyan-500/60 hover:bg-cyan-950/50 text-cyan-300 text-[11px] font-mono tracking-wide transition-all"
         >
-          <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-          <span className="hidden sm:inline">AI Investigator</span>
+          <Sparkles className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">Intel Assist</span>
         </button>
 
-        {/* Audit Log Trigger */}
+        {/* Audit Trail */}
         <button
           onClick={onOpenAudit}
-          className="flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 text-xs font-mono transition-colors"
+          className="flex items-center gap-2 px-3 py-1.5 rounded border border-white/[0.07] bg-white/[0.03] hover:border-white/[0.14] text-slate-400 hover:text-slate-200 text-[11px] font-mono tracking-wide transition-all"
           title="Tamper-Evident Audit Trail"
         >
-          <History className="w-3.5 h-3.5 text-slate-400" />
-          <span className="hidden md:inline">Audit</span>
+          <ClipboardList className="w-3.5 h-3.5" />
+          <span className="hidden md:inline">Audit Trail</span>
         </button>
 
-        {/* Role Switcher */}
-        <div className="flex items-center pl-2 border-l border-slate-800">
-          <select
-            value={currentRole}
-            onChange={(e) => onRoleChange(e.target.value)}
-            className="bg-slate-900 border border-slate-800 text-slate-300 text-xs font-mono rounded px-2 py-1.5 focus:outline-none focus:border-cyan-500"
-          >
-            <option value="Investigator">DSP R. Sharma (Investigator)</option>
-            <option value="Analyst">Analyst P. Kaur (Analyst)</option>
-            <option value="Administrator">Admin-01 (Tech Lead)</option>
-          </select>
-        </div>
+        {/* Divider */}
+        <div className="h-5 w-px bg-white/[0.07] mx-1" />
+
+        {/* Officer Role */}
+        <select
+          value={currentRole}
+          onChange={(e) => onRoleChange(e.target.value)}
+          className="bg-white/[0.03] border border-white/[0.07] hover:border-white/[0.14] text-slate-300 text-[11px] font-mono rounded px-2.5 py-1.5 focus:outline-none focus:border-cyan-500/50 cursor-pointer transition-all"
+        >
+          <option value="Investigator">DSP R. Sharma</option>
+          <option value="Analyst">Analyst P. Kaur</option>
+          <option value="Administrator">Admin-01</option>
+        </select>
       </div>
     </header>
   );

@@ -2,74 +2,106 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Google Fonts: Inter for UI, JetBrains Mono for data ── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
 @layer base {
+  :root {
+    --color-bg:      #06090F;
+    --color-surface: #0A0E17;
+    --color-border:  rgba(255,255,255,0.06);
+    --color-accent:  #22d3ee;   /* cyan-400 */
+  }
+
+  html {
+    font-size: 14px;
+  }
+
   body {
-    @apply bg-[#070B11] text-slate-200 antialiased font-sans selection:bg-cyan-500/30 selection:text-cyan-200 overflow-x-hidden;
+    background-color: var(--color-bg);
+    color: #cbd5e1;          /* slate-300 */
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+
+  /* Mono spans / code / kbd */
+  code, kbd, pre, .font-mono {
+    font-family: 'JetBrains Mono', 'Fira Code', monospace !important;
+  }
+
+  /* Text selection */
+  ::selection {
+    background: rgba(34, 211, 238, 0.18);
+    color: #e2f8ff;
   }
 }
 
-/* Custom Cyberpunk / Police Ops Scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+/* ── Scrollbar ── */
+::-webkit-scrollbar        { width: 4px; height: 4px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: rgba(255,255,255,0.08); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(34, 211, 238, 0.3); }
+
+/* ── Utility: subtle dot-grid background ── */
+.dot-grid {
+  background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size: 24px 24px;
 }
 
-::-webkit-scrollbar-track {
-  background: #0B0F17;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #1E293B;
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #0284c7;
-}
-
-/* Grid & Glass utility classes */
-.cyber-grid {
-  background-size: 32px 32px;
-  background-image: 
-    linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-}
-
-.radar-grid {
-  background: radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.05) 0%, transparent 60%);
-}
-
-.glass-panel {
-  background: rgba(13, 19, 31, 0.85);
+/* ── Utility: glass card ── */
+.glass-card {
+  background: rgba(10, 14, 23, 0.80);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
 }
 
-.glass-panel-hover:hover {
-  border-color: rgba(6, 182, 212, 0.35);
-  box-shadow: 0 0 15px rgba(6, 182, 212, 0.08);
-}
-
+/* ── Threat / Risk badges ── */
 .badge-critical {
-  @apply bg-rose-500/10 text-rose-400 border border-rose-500/30 font-mono text-xs px-2 py-0.5 rounded uppercase tracking-wider;
+  @apply inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-semibold tracking-wider
+         bg-rose-500/10 text-rose-400 border border-rose-500/25 uppercase;
 }
-
 .badge-high {
-  @apply bg-amber-500/10 text-amber-400 border border-amber-500/30 font-mono text-xs px-2 py-0.5 rounded uppercase tracking-wider;
+  @apply inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-semibold tracking-wider
+         bg-amber-500/10 text-amber-400 border border-amber-500/25 uppercase;
 }
-
 .badge-medium {
-  @apply bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 font-mono text-xs px-2 py-0.5 rounded uppercase tracking-wider;
+  @apply inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-semibold tracking-wider
+         bg-cyan-500/10 text-cyan-400 border border-cyan-500/25 uppercase;
 }
-
 .badge-low {
-  @apply bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono text-xs px-2 py-0.5 rounded uppercase tracking-wider;
+  @apply inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-semibold tracking-wider
+         bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 uppercase;
 }
 
-/* Cytoscape container styling */
+/* ── Page section header ── */
+.page-title {
+  @apply text-base font-semibold text-slate-100 tracking-tight;
+}
+.page-subtitle {
+  @apply text-xs text-slate-500 font-mono;
+}
+
+/* ── Data table base ── */
+.intel-table {
+  @apply w-full text-xs font-mono border-collapse;
+}
+.intel-table th {
+  @apply text-[10px] text-slate-500 font-semibold tracking-[0.12em] uppercase
+         px-3 py-2.5 text-left border-b border-white/[0.06] bg-white/[0.02];
+}
+.intel-table td {
+  @apply px-3 py-2.5 border-b border-white/[0.04] text-slate-300 align-middle;
+}
+.intel-table tr:last-child td { border-bottom: none; }
+.intel-table tbody tr:hover td { background: rgba(255,255,255,0.03); }
+
+/* ── Cytoscape container ── */
 #cy-container {
   width: 100%;
   height: 100%;
   position: relative;
-  background-color: #080D16;
+  background-color: #06090F;
 }

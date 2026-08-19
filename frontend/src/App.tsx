@@ -225,8 +225,8 @@ export function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#070B11] text-slate-100 flex flex-col font-sans selection:bg-cyan-500/30 selection:text-cyan-200">
-      {/* Clean Top Navbar */}
+    <div className="min-h-screen bg-[#06090F] text-slate-200 flex flex-col">
+      {/* Top Navbar */}
       <Navbar
         stats={stats}
         currentRole={currentRole}
@@ -241,14 +241,6 @@ export function App() {
         onToggleDemo={() => setIsDemoOpen(!isDemoOpen)}
       />
 
-      {/* Optional Slim Demo Stepper */}
-      <DemoTourBar
-        currentStep={demoStep}
-        onSelectStep={handleSelectDemoStep}
-        isOpen={isDemoOpen}
-        onToggle={() => setIsDemoOpen(false)}
-      />
-
       {/* Main Workspace Layout */}
       <div className="flex-1 flex overflow-hidden">
         {/* Left Sidebar */}
@@ -258,8 +250,8 @@ export function App() {
           alertCount={alerts.length}
         />
 
-        {/* Main Dedicated Content View Area */}
-        <main className="flex-1 overflow-y-auto p-6 md:p-8 bg-[#070B11]">
+        {/* Main Content */}
+        <main className="flex-1 overflow-y-auto p-6 bg-[#06090F]">
           {/* 1. Home / Operations Hub: localhost:5173/home */}
           {(activeView === 'home' || activeView === 'command-center') && (
             <CommandCenter
