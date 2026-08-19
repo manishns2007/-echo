@@ -8,7 +8,7 @@ import { AuditLogDrawer } from './components/AuditLogDrawer';
 import { ReportViewerModal } from './components/ReportViewerModal';
 import { NetworkGraph } from './components/NetworkGraph';
 
-// Views
+// Dedicated Views
 import { CommandCenter } from './views/CommandCenter';
 import { LiveFeedView } from './views/LiveFeedView';
 import { AlertCenterView } from './views/AlertCenterView';
@@ -48,7 +48,7 @@ export function App() {
   // Role & Demo state
   const [currentRole, setCurrentRole] = useState<string>('Investigator');
   const [demoStep, setDemoStep] = useState<number>(1);
-  const [isDemoOpen, setIsDemoOpen] = useState<boolean>(true);
+  const [isDemoOpen, setIsDemoOpen] = useState<boolean>(false);
 
   // Core Data Cache
   const [stats, setStats] = useState<SystemStats | null>(null);
@@ -138,7 +138,7 @@ export function App() {
 
   return (
     <div className="min-h-screen bg-[#070B11] text-slate-100 flex flex-col font-sans selection:bg-cyan-500/30 selection:text-cyan-200">
-      {/* Top Navbar */}
+      {/* Clean Top Navbar */}
       <Navbar
         stats={stats}
         currentRole={currentRole}
@@ -149,14 +149,16 @@ export function App() {
         onSelectEntity={handleSelectEntity}
         activeView={activeView}
         onNavigate={setActiveView}
+        isDemoOpen={isDemoOpen}
+        onToggleDemo={() => setIsDemoOpen(!isDemoOpen)}
       />
 
-      {/* 10-Step Interactive Demo Tour Stepper */}
+      {/* Optional Slim Demo Stepper */}
       <DemoTourBar
         currentStep={demoStep}
         onSelectStep={handleSelectDemoStep}
         isOpen={isDemoOpen}
-        onToggle={() => setIsDemoOpen(!isDemoOpen)}
+        onToggle={() => setIsDemoOpen(false)}
       />
 
       {/* Main Workspace Layout */}
@@ -168,60 +170,36 @@ export function App() {
           alertCount={alerts.length}
         />
 
-        {/* Main Content Area */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-[#070B11]">
+        {/* Main Dedicated Content View Area */}
+        <main className="flex-1 overflow-y-auto p-6 md:p-8 bg-[#070B11]">
+          {/* 1. Home / Central Operations Hub */}
           {activeView === 'command-center' && (
             <CommandCenter
               stats={stats}
               alerts={alerts}
-              liveFeed={liveFeed}
               onNavigate={setActiveView}
               onSelectEntity={handleSelectEntity}
               onSelectAlert={handleSelectAlert}
             />
           )}
 
-          {activeView === 'live-feed' && (
-            <LiveFeedView />
-          )}
-
-          {activeView === 'alert-center' && (
-            <AlertCenterView
-              onSelectAlert={setSelectedAlertId}
-              onNavigate={setActiveView}
-              onSelectEntity={handleSelectEntity}
-            />
-          )}
-
-          {activeView === 'drug-intel' && (
-            <DrugIntelligenceView />
-          )}
-
-          {activeView === 'entity-intel' && (
-            <EntityIntelligenceView
-              entities={entities}
-              onSelectEntity={handleSelectEntity}
-            />
-          )}
-
-          {activeView === 'entity-detail' && (
-            <EntityProfileDetail
-              entityId={selectedEntityId}
-              onBack={() => setActiveView('entity-intel')}
-              onNavigate={setActiveView}
-              onSelectEntity={handleSelectEntity}
-            />
-          )}
-
+          {/* 2. Dedicated Cytoscape Network Graph Page */}
           {activeView === 'network-graph' && (
-            <div className="space-y-3 font-mono">
-              <div className="flex items-center justify-between">
-                <h1 className="text-lg font-bold text-slate-100 uppercase tracking-tight">
-                  Interactive Cytoscape Network Intelligence
-                </h1>
-                <span className="text-xs text-slate-400">
-                  Target: {selectedEntityId} | 18 Suspect Nodes & Cross-Platform Edges
-                </span>
+            <div className="space-y-4 font-mono max-w-7xl mx-auto">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+                <div>
+                  <h1 className="text-xl font-bold text-slate-100 uppercase tracking-tight">
+                    Network Intelligence Graph
+                  </h1>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Multi-source Cytoscape.js correlation topology linking suspects, crypto wallets, and encrypted handles
+                  </p>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="text-xs px-2.5 py-1 rounded bg-rose-950 text-rose-300 border border-rose-800 font-bold">
+                    Cluster: INDRA_47 (87/100)
+                  </span>
+                </div>
               </div>
               <NetworkGraph
                 graphData={graphData}
@@ -231,19 +209,7 @@ export function App() {
             </div>
           )}
 
-          {activeView === 'crypto-intel' && (
-            <CryptoIntelligenceView
-              initialWallet={selectedWalletAddress}
-              onSelectEntity={handleSelectEntity}
-            />
-          )}
-
-          {activeView === 'encrypted-platforms' && (
-            <EncryptedPlatformView
-              onSelectEntity={handleSelectEntity}
-            />
-          )}
-
+          {/* 3. Dedicated Investigation Workspace Page */}
           {activeView === 'investigations' && (
             <InvestigationWorkspaceView
               initialCaseId={selectedCaseId}
@@ -253,26 +219,85 @@ export function App() {
             />
           )}
 
+          {/* 4. Dedicated Entity Directory Page */}
+          {activeView === 'entity-intel' && (
+            <EntityIntelligenceView
+              entities={entities}
+              onSelectEntity={handleSelectEntity}
+            />
+          )}
+
+          {/* 5. Dedicated Entity 360 Profile Page */}
+          {activeView === 'entity-detail' && (
+            <EntityProfileDetail
+              entityId={selectedEntityId}
+              onBack={() => setActiveView('entity-intel')}
+              onNavigate={setActiveView}
+              onSelectEntity={handleSelectEntity}
+            />
+          )}
+
+          {/* 6. Dedicated Alert Center Page */}
+          {activeView === 'alert-center' && (
+            <AlertCenterView
+              onSelectAlert={setSelectedAlertId}
+              onNavigate={setActiveView}
+              onSelectEntity={handleSelectEntity}
+            />
+          )}
+
+          {/* 7. Dedicated Drug Analytics Page */}
+          {activeView === 'drug-intel' && (
+            <DrugIntelligenceView />
+          )}
+
+          {/* 8. Dedicated Cryptocurrency Tracker Page */}
+          {activeView === 'crypto-intel' && (
+            <CryptoIntelligenceView
+              initialWallet={selectedWalletAddress}
+              onSelectEntity={handleSelectEntity}
+            />
+          )}
+
+          {/* 9. Dedicated Encrypted Platforms Page */}
+          {activeView === 'encrypted-platforms' && (
+            <EncryptedPlatformView
+              onSelectEntity={handleSelectEntity}
+            />
+          )}
+
+          {/* 10. Dedicated Live Intel Stream Page */}
+          {activeView === 'live-feed' && (
+            <LiveFeedView />
+          )}
+
+          {/* 11. Dedicated Timeline Escalation Page */}
           {activeView === 'timeline' && (
             <TimelineView />
           )}
 
+          {/* 12. Dedicated Evidence Vault Page */}
           {activeView === 'evidence-vault' && (
             <EvidenceVaultView />
           )}
 
+          {/* 13. Dedicated Correlation Rule Engine Page */}
           {activeView === 'correlation-engine' && (
             <CorrelationSimulatorView />
           )}
 
+          {/* 14. Audit Logs */}
           {activeView === 'audit-logs' && (
-            <div className="p-4 bg-slate-900 rounded-xl border border-slate-800">
-              <h2 className="text-sm font-bold text-slate-100 font-mono mb-4">Tamper-Evident System Audit Logs</h2>
+            <div className="p-8 bg-slate-900/80 rounded-2xl border border-slate-800 space-y-4 max-w-2xl mx-auto text-center font-mono">
+              <h2 className="text-base font-bold text-slate-100">Tamper-Evident System Audit Logs</h2>
+              <p className="text-xs text-slate-400">
+                WORM-compliant records capturing user logins, evidence hash verifications, and report generations.
+              </p>
               <button
                 onClick={() => setIsAuditOpen(true)}
-                className="px-4 py-2 bg-cyan-600 font-bold text-slate-950 font-mono text-xs rounded-lg"
+                className="px-4 py-2 bg-cyan-600 font-bold text-slate-950 text-xs rounded-xl hover:bg-cyan-500 transition-colors"
               >
-                Open Full Audit Drawer
+                Launch Audit Drawer Inspector
               </button>
             </div>
           )}

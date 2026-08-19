@@ -1,24 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react';
 import cytoscape from 'cytoscape';
 import { 
-  NetworkGraphData, 
-  GraphNode, 
-  GraphEdge 
+  NetworkGraphData 
 } from '../types/intelligence';
 import { 
   Share2, 
   ZoomIn, 
   ZoomOut, 
   RotateCcw, 
-  Filter, 
-  Eye, 
   ExternalLink, 
-  ShieldAlert, 
-  CheckCircle2,
   Info,
-  Maximize2,
-  Minimize2,
-  Compass
+  CheckCircle2,
+  Filter
 } from 'lucide-react';
 
 interface NetworkGraphProps {
@@ -43,7 +36,6 @@ export const NetworkGraph: React.FC<NetworkGraphProps> = ({
   const [showComms, setShowComms] = useState<boolean>(true);
   const [showListings, setShowListings] = useState<boolean>(true);
   const [showMarketplaces, setShowMarketplaces] = useState<boolean>(true);
-  const [focusTarget, setFocusTarget] = useState<string>(selectedEntityId || 'ENTITY-0047');
 
   useEffect(() => {
     if (!cyRef.current || !graphData) return;
@@ -195,9 +187,9 @@ export const NetworkGraph: React.FC<NetworkGraphProps> = ({
       layout: {
         name: 'cose',
         animate: false,
-        padding: 40,
-        nodeRepulsion: () => 8000,
-        idealEdgeLength: () => 100,
+        padding: 50,
+        nodeRepulsion: () => 9000,
+        idealEdgeLength: () => 110,
         nodeOverlap: 20
       }
     });
@@ -225,11 +217,11 @@ export const NetworkGraph: React.FC<NetworkGraphProps> = ({
     cyInstance.current = cy;
 
     // Focus on target if set
-    if (focusTarget) {
-      const targetNode = cy.$(`#${focusTarget}`);
+    if (selectedEntityId) {
+      const targetNode = cy.$(`#${selectedEntityId}`);
       if (targetNode.length > 0) {
         cy.center(targetNode);
-        cy.zoom({ level: 1.25, position: targetNode.position() });
+        cy.zoom({ level: 1.2, position: targetNode.position() });
         targetNode.select();
         setSelectedNodeData(targetNode.data());
       }
@@ -238,11 +230,11 @@ export const NetworkGraph: React.FC<NetworkGraphProps> = ({
     return () => {
       cy.destroy();
     };
-  }, [graphData, showWallets, showComms, showListings, showMarketplaces]);
+  }, [graphData, showWallets, showComms, showListings, showMarketplaces, selectedEntityId]);
 
   const handleCenter = () => {
     if (cyInstance.current) {
-      cyInstance.current.fit(undefined, 30);
+      cyInstance.current.fit(undefined, 40);
     }
   };
 
@@ -268,135 +260,135 @@ export const NetworkGraph: React.FC<NetworkGraphProps> = ({
     cy.elements().removeClass('opacity-20');
     cy.elements().not(neighborhood).addClass('opacity-20');
     cy.center(neighborhood);
-    cy.fit(neighborhood, 40);
+    cy.fit(neighborhood, 50);
   };
 
   const handleResetFilters = () => {
     if (!cyInstance.current) return;
     cyInstance.current.elements().removeClass('opacity-20');
-    cyInstance.current.fit(undefined, 30);
+    cyInstance.current.fit(undefined, 40);
   };
 
   return (
-    <div className="relative w-full h-[calc(100vh-8.5rem)] rounded-xl overflow-hidden border border-slate-800 bg-[#070B11]">
-      {/* Top Toolbar */}
-      <div className="absolute top-3 left-3 z-10 flex flex-wrap items-center gap-2 bg-slate-900/90 border border-slate-800/90 rounded-lg p-2 backdrop-blur shadow-lg text-xs font-mono">
-        <div className="flex items-center space-x-1.5 px-2 py-1 bg-slate-950 rounded border border-slate-800 text-slate-300">
+    <div className="relative w-full h-[calc(100vh-11rem)] rounded-2xl overflow-hidden border border-slate-800 bg-[#070C15] shadow-2xl">
+      {/* Top Filter Bar */}
+      <div className="absolute top-4 left-4 z-10 flex flex-wrap items-center gap-2 bg-[#090F1C]/95 border border-slate-800 rounded-xl p-2.5 backdrop-blur shadow-2xl text-xs font-mono">
+        <div className="flex items-center space-x-1.5 px-2.5 py-1 bg-slate-900 rounded-lg border border-slate-800 text-slate-200">
           <Share2 className="w-3.5 h-3.5 text-cyan-400" />
-          <span className="font-semibold">Network Graph</span>
+          <span className="font-bold">Graph Canvas</span>
         </div>
 
         {/* Node Filters */}
         <div className="flex items-center space-x-1 pl-2 border-l border-slate-800">
           <button
             onClick={() => setShowWallets(!showWallets)}
-            className={`px-2 py-1 rounded text-[11px] transition-colors ${
-              showWallets ? 'bg-amber-950/80 text-amber-300 border border-amber-700' : 'bg-slate-950 text-slate-500 border border-slate-800'
+            className={`px-2.5 py-1 rounded-lg text-[11px] transition-colors ${
+              showWallets ? 'bg-amber-950/80 text-amber-300 border border-amber-700 font-semibold' : 'bg-slate-950 text-slate-500 border border-slate-800'
             }`}
           >
             Wallets
           </button>
           <button
             onClick={() => setShowComms(!showComms)}
-            className={`px-2 py-1 rounded text-[11px] transition-colors ${
-              showComms ? 'bg-purple-950/80 text-purple-300 border border-purple-700' : 'bg-slate-950 text-slate-500 border border-slate-800'
+            className={`px-2.5 py-1 rounded-lg text-[11px] transition-colors ${
+              showComms ? 'bg-purple-950/80 text-purple-300 border border-purple-700 font-semibold' : 'bg-slate-950 text-slate-500 border border-slate-800'
             }`}
           >
             Comms
           </button>
           <button
             onClick={() => setShowListings(!showListings)}
-            className={`px-2 py-1 rounded text-[11px] transition-colors ${
-              showListings ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-700' : 'bg-slate-950 text-slate-500 border border-slate-800'
+            className={`px-2.5 py-1 rounded-lg text-[11px] transition-colors ${
+              showListings ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-700 font-semibold' : 'bg-slate-950 text-slate-500 border border-slate-800'
             }`}
           >
             Listings
           </button>
           <button
             onClick={() => setShowMarketplaces(!showMarketplaces)}
-            className={`px-2 py-1 rounded text-[11px] transition-colors ${
-              showMarketplaces ? 'bg-cyan-950/80 text-cyan-300 border border-cyan-700' : 'bg-slate-950 text-slate-500 border border-slate-800'
+            className={`px-2.5 py-1 rounded-lg text-[11px] transition-colors ${
+              showMarketplaces ? 'bg-cyan-950/80 text-cyan-300 border border-cyan-700 font-semibold' : 'bg-slate-950 text-slate-500 border border-slate-800'
             }`}
           >
             Markets
           </button>
         </div>
 
-        {/* Quick Focus Actions */}
-        <div className="flex items-center space-x-1 pl-2 border-l border-slate-800">
+        {/* Actions */}
+        <div className="flex items-center space-x-1.5 pl-2 border-l border-slate-800">
           <button
             onClick={() => handleIsolateTarget('ENTITY-0047')}
-            className="px-2 py-1 rounded bg-rose-950/80 text-rose-300 border border-rose-700 hover:bg-rose-900 text-[11px] font-semibold"
+            className="px-3 py-1 rounded-lg bg-rose-950/80 text-rose-300 border border-rose-700 hover:bg-rose-900 text-[11px] font-bold"
           >
             Isolate INDRA_47 Cluster
           </button>
           <button
             onClick={handleResetFilters}
-            className="px-2 py-1 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 text-[11px]"
+            className="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 text-[11px]"
           >
-            Reset Focus
+            Reset View
           </button>
         </div>
       </div>
 
-      {/* Floating Canvas Controls (Zoom, Fit) */}
-      <div className="absolute top-3 right-3 z-10 flex flex-col space-y-1 bg-slate-900/90 border border-slate-800 rounded-lg p-1.5 backdrop-blur shadow-lg font-mono">
+      {/* Floating Canvas Controls */}
+      <div className="absolute top-4 right-4 z-10 flex flex-col space-y-1.5 bg-[#090F1C]/95 border border-slate-800 rounded-xl p-1.5 backdrop-blur shadow-2xl font-mono">
         <button
           onClick={handleZoomIn}
-          className="p-1.5 rounded hover:bg-slate-800 text-slate-300"
+          className="p-2 rounded-lg hover:bg-slate-800 text-slate-300"
           title="Zoom In"
         >
           <ZoomIn className="w-4 h-4" />
         </button>
         <button
           onClick={handleZoomOut}
-          className="p-1.5 rounded hover:bg-slate-800 text-slate-300"
+          className="p-2 rounded-lg hover:bg-slate-800 text-slate-300"
           title="Zoom Out"
         >
           <ZoomOut className="w-4 h-4" />
         </button>
         <button
           onClick={handleCenter}
-          className="p-1.5 rounded hover:bg-slate-800 text-slate-300"
+          className="p-2 rounded-lg hover:bg-slate-800 text-slate-300"
           title="Fit to Screen"
         >
           <RotateCcw className="w-4 h-4" />
         </button>
       </div>
 
-      {/* Cytoscape Canvas Container */}
+      {/* Cytoscape Container */}
       <div ref={cyRef} className="w-full h-full" />
 
-      {/* Graph Legend (Bottom Left) */}
-      <div className="absolute bottom-3 left-3 z-10 bg-slate-950/90 border border-slate-800 rounded-lg p-2.5 backdrop-blur shadow-lg text-[11px] font-mono space-y-1.5 hidden sm:block">
-        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Legend & Entity Types</div>
-        <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-slate-300">
-          <div className="flex items-center space-x-1.5">
+      {/* Legend (Bottom Left) */}
+      <div className="absolute bottom-4 left-4 z-10 bg-[#090F1C]/90 border border-slate-800 rounded-xl p-3 backdrop-blur shadow-2xl text-[11px] font-mono space-y-2 hidden sm:block">
+        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Node Legend</div>
+        <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-slate-300 text-[11px]">
+          <div className="flex items-center space-x-2">
             <span className="w-2.5 h-2.5 rounded-full bg-rose-500 border border-rose-300"></span>
-            <span>Suspect (INDRA_47)</span>
+            <span>Suspect Target (INDRA_47)</span>
           </div>
-          <div className="flex items-center space-x-1.5">
+          <div className="flex items-center space-x-2">
             <span className="w-2.5 h-2.5 bg-amber-500 transform rotate-45"></span>
-            <span>Crypto Wallet</span>
+            <span>Crypto Wallet (bc1q92fa...)</span>
           </div>
-          <div className="flex items-center space-x-1.5">
+          <div className="flex items-center space-x-2">
             <span className="w-2.5 h-2.5 bg-purple-500 transform rotate-45"></span>
-            <span>Encrypted Comms</span>
+            <span>Comms Handle (@indra_ops)</span>
           </div>
-          <div className="flex items-center space-x-1.5">
+          <div className="flex items-center space-x-2">
             <span className="w-2.5 h-2.5 rounded-sm bg-emerald-500"></span>
-            <span>Drug Listing</span>
+            <span>Darknet Drug Listing</span>
           </div>
         </div>
       </div>
 
-      {/* Edge Relationship Details Card (When Edge is Clicked) */}
+      {/* Edge Relationship Inspector Drawer */}
       {selectedEdgeData && (
-        <div className="absolute top-16 right-4 z-20 w-80 bg-slate-900/95 border border-cyan-500/40 rounded-xl p-4 backdrop-blur shadow-2xl font-mono text-xs space-y-3 animate-in fade-in slide-in-from-top-2">
+        <div className="absolute top-20 right-4 z-20 w-84 bg-[#090F1C]/95 border border-cyan-500/50 rounded-2xl p-5 backdrop-blur shadow-2xl font-mono text-xs space-y-3.5 animate-in fade-in slide-in-from-top-2">
           <div className="flex items-center justify-between pb-2 border-b border-slate-800">
             <div className="flex items-center space-x-2 text-cyan-400 font-bold">
               <Share2 className="w-4 h-4" />
-              <span>RELATIONSHIP INSPECTION</span>
+              <span>RELATIONSHIP INSPECTOR</span>
             </div>
             <button
               onClick={() => setSelectedEdgeData(null)}
@@ -406,12 +398,12 @@ export const NetworkGraph: React.FC<NetworkGraphProps> = ({
             </button>
           </div>
 
-          <div className="space-y-2 text-slate-300">
-            <div className="p-2 rounded bg-slate-950 border border-slate-800 text-[11px]">
-              <span className="text-slate-500 block">Source → Target:</span>
-              <span className="font-semibold text-slate-200">{selectedEdgeData.source}</span>
-              <span className="text-cyan-400 mx-1.5">→</span>
-              <span className="font-semibold text-slate-200">{selectedEdgeData.target}</span>
+          <div className="space-y-2.5 text-slate-300">
+            <div className="p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-[11px]">
+              <span className="text-slate-500 block text-[10px]">Connected Entities:</span>
+              <span className="font-bold text-slate-200">{selectedEdgeData.source}</span>
+              <span className="text-cyan-400 mx-2">→</span>
+              <span className="font-bold text-slate-200">{selectedEdgeData.target}</span>
             </div>
 
             <div>
@@ -420,7 +412,7 @@ export const NetworkGraph: React.FC<NetworkGraphProps> = ({
             </div>
 
             <div className="flex items-center justify-between">
-              <span className="text-slate-400">Correlation Confidence:</span>
+              <span className="text-slate-400">Confidence Score:</span>
               <span className="px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800 font-bold">
                 {selectedEdgeData.confidence}%
               </span>
@@ -428,7 +420,7 @@ export const NetworkGraph: React.FC<NetworkGraphProps> = ({
 
             <div>
               <span className="text-slate-500 block text-[10px] uppercase">Forensic Evidence Basis:</span>
-              <div className="mt-1 p-2 rounded bg-slate-950 border border-slate-800 text-slate-300 text-[11px] leading-relaxed">
+              <div className="mt-1 p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-slate-300 text-[11px] leading-relaxed">
                 {selectedEdgeData.evidence}
               </div>
             </div>
@@ -447,9 +439,9 @@ export const NetworkGraph: React.FC<NetworkGraphProps> = ({
         </div>
       )}
 
-      {/* Node Quick Inspector Drawer (When Node is Clicked) */}
+      {/* Node Quick Inspector Drawer */}
       {selectedNodeData && (
-        <div className="absolute top-16 right-4 z-20 w-80 bg-slate-900/95 border border-slate-700 rounded-xl p-4 backdrop-blur shadow-2xl font-mono text-xs space-y-3 animate-in fade-in slide-in-from-top-2">
+        <div className="absolute top-20 right-4 z-20 w-84 bg-[#090F1C]/95 border border-slate-700 rounded-2xl p-5 backdrop-blur shadow-2xl font-mono text-xs space-y-3.5 animate-in fade-in slide-in-from-top-2">
           <div className="flex items-center justify-between pb-2 border-b border-slate-800">
             <div className="flex items-center space-x-2 text-slate-200 font-bold">
               <Info className="w-4 h-4 text-cyan-400" />
@@ -463,22 +455,22 @@ export const NetworkGraph: React.FC<NetworkGraphProps> = ({
             </button>
           </div>
 
-          <div className="space-y-2 text-slate-300">
+          <div className="space-y-2.5 text-slate-300">
             <div>
-              <span className="text-slate-500 block text-[10px] uppercase">Node Label / ID:</span>
+              <span className="text-slate-500 block text-[10px] uppercase">Node Identifier:</span>
               <span className="font-bold text-slate-100 text-sm">{selectedNodeData.label || selectedNodeData.id}</span>
             </div>
 
             <div className="flex items-center justify-between">
               <span className="text-slate-400">Node Type:</span>
-              <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 uppercase font-semibold text-[10px]">
+              <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 uppercase font-bold text-[10px]">
                 {selectedNodeData.type}
               </span>
             </div>
 
             {selectedNodeData.riskScore && (
               <div className="flex items-center justify-between">
-                <span className="text-slate-400">Risk Assessment:</span>
+                <span className="text-slate-400">Risk Score:</span>
                 <span className={`px-2 py-0.5 rounded font-bold ${
                   selectedNodeData.riskScore >= 80 
                     ? 'bg-rose-950 text-rose-300 border border-rose-800' 
@@ -499,9 +491,9 @@ export const NetworkGraph: React.FC<NetworkGraphProps> = ({
             {selectedNodeData.type === 'suspect' && (
               <button
                 onClick={() => onSelectEntity(selectedNodeData.id)}
-                className="w-full mt-3 flex items-center justify-center space-x-2 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold transition-all"
+                className="w-full mt-3 flex items-center justify-center space-x-2 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold transition-all shadow-md"
               >
-                <span>Open 360° Entity Profile</span>
+                <span>Open 360° Profile</span>
                 <ExternalLink className="w-3.5 h-3.5" />
               </button>
             )}

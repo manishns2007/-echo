@@ -6,23 +6,21 @@ import {
   Users,
   Coins,
   Share2,
-  TrendingUp,
   Radio,
   ArrowRight,
   Shield,
-  Activity,
-  CheckCircle2,
-  Zap,
-  Lock,
+  MessageSquareCode,
+  Sliders,
+  Database,
   ExternalLink,
-  Flame
+  Flame,
+  FileCheck
 } from 'lucide-react';
-import { SystemStats, AlertRecord, TimelineEvent } from '../types/intelligence';
+import { SystemStats, AlertRecord } from '../types/intelligence';
 
 interface CommandCenterProps {
   stats: SystemStats | null;
   alerts: AlertRecord[];
-  liveFeed: TimelineEvent[];
   onNavigate: (view: string) => void;
   onSelectEntity: (entityId: string) => void;
   onSelectAlert: (alertId: string) => void;
@@ -31,333 +29,251 @@ interface CommandCenterProps {
 export const CommandCenter: React.FC<CommandCenterProps> = ({
   stats,
   alerts,
-  liveFeed,
   onNavigate,
   onSelectEntity,
   onSelectAlert
 }) => {
-  const kpis = [
+  const topCriticalAlert = alerts.find((a) => a.severity === 'CRITICAL') || alerts[0];
+
+  const modules = [
+    {
+      id: 'network-graph',
+      title: 'Interactive Network Graph',
+      subtitle: 'Cytoscape.js Cross-Platform Visualizer',
+      description: 'Explore multi-hop relationships linking suspects, cryptocurrency deposit wallets, encrypted handles (@indra_ops), and darknet listings.',
+      icon: Share2,
+      badge: 'Interactive Canvas',
+      badgeColor: 'bg-cyan-950 text-cyan-300 border-cyan-800',
+      accentColor: 'border-cyan-800/80 hover:border-cyan-500',
+      iconColor: 'text-cyan-400',
+      statLabel: 'Detected Nodes',
+      statValue: '48 Nodes & Edges'
+    },
     {
       id: 'investigations',
-      label: 'ACTIVE INVESTIGATIONS',
-      value: stats?.kpis.active_investigations || 12,
-      sub: '4 High-Priority Cartels',
+      title: 'Investigation Workspace',
+      subtitle: 'Case #CHD-DRUG-0047 Dossier',
+      description: 'Active case folder aggregating 8 linked target entities, 19 cryptographically sealed exhibits, and one-click official intelligence report generation.',
       icon: Briefcase,
-      color: 'text-cyan-400',
-      bgColor: 'bg-cyan-950/40',
-      borderColor: 'border-cyan-800/60',
-      target: 'investigations'
+      badge: 'Case Active',
+      badgeColor: 'bg-emerald-950 text-emerald-300 border-emerald-800',
+      accentColor: 'border-emerald-800/80 hover:border-emerald-500',
+      iconColor: 'text-emerald-400',
+      statLabel: 'Lead Investigator',
+      statValue: 'DSP R. Sharma'
     },
     {
-      id: 'alerts',
-      label: 'HIGH-RISK ALERTS',
-      value: stats?.kpis.high_risk_alerts || '07',
-      sub: '3 Critical Identity Matches',
-      icon: AlertTriangle,
-      color: 'text-rose-400',
-      bgColor: 'bg-rose-950/40',
-      borderColor: 'border-rose-800/60',
-      pulse: true,
-      target: 'alert-center'
-    },
-    {
-      id: 'drugs',
-      label: 'DRUG INDICATORS',
-      value: stats?.kpis.drug_indicators || 184,
-      sub: 'MDMA, Ketamine, Synthetic Opioids',
-      icon: Pill,
-      color: 'text-emerald-400',
-      bgColor: 'bg-emerald-950/40',
-      borderColor: 'border-emerald-800/60',
-      target: 'drug-intel'
-    },
-    {
-      id: 'entities',
-      label: 'LINKED ENTITIES',
-      value: stats?.kpis.linked_entities || 63,
-      sub: 'INDRA_47 & 18 Suspects',
+      id: 'entity-intel',
+      title: 'Entity Intelligence & 360°',
+      subtitle: 'Suspect Directory & Risk Factors',
+      description: 'Searchable directory of 15 suspect entities featuring 6 deep-inspection tabs, transparent risk breakdowns (87/100), and deterministic match weights.',
       icon: Users,
-      color: 'text-purple-400',
-      bgColor: 'bg-purple-950/40',
-      borderColor: 'border-purple-800/60',
-      target: 'entity-intel'
+      badge: '15 Suspects',
+      badgeColor: 'bg-rose-950 text-rose-300 border-rose-800',
+      accentColor: 'border-rose-800/80 hover:border-rose-500',
+      iconColor: 'text-rose-400',
+      statLabel: 'Primary Target',
+      statValue: 'INDRA_47 (CRITICAL)'
     },
     {
-      id: 'wallets',
-      label: 'SUSPICIOUS WALLETS',
-      value: stats?.kpis.suspicious_wallets || 21,
-      sub: '18.64 BTC Primary Cluster',
+      id: 'crypto-intel',
+      title: 'Cryptocurrency Intelligence',
+      subtitle: 'Bitcoin Flow & Precursor Tracing',
+      description: 'Track 8 monitored wallets, analyze 18.64 BTC transaction inflows, and trace 3.45 BTC precursor settlements between INDRA_47 and VIPER_CORP.',
       icon: Coins,
-      color: 'text-amber-400',
-      bgColor: 'bg-amber-950/40',
-      borderColor: 'border-amber-800/60',
-      target: 'crypto-intel'
+      badge: '18.64 BTC Primary',
+      badgeColor: 'bg-amber-950 text-amber-300 border-amber-800',
+      accentColor: 'border-amber-800/80 hover:border-amber-500',
+      iconColor: 'text-amber-400',
+      statLabel: 'Cold Storage Vault',
+      statValue: '12.45 BTC Swept'
     },
     {
-      id: 'networks',
-      label: 'NETWORKS DETECTED',
-      value: stats?.kpis.networks_detected || 8,
-      sub: 'Cross-Market Hubs',
-      icon: Share2,
-      color: 'text-blue-400',
-      bgColor: 'bg-blue-950/40',
-      borderColor: 'border-blue-800/60',
-      target: 'network-graph'
+      id: 'drug-intel',
+      title: 'Drug Intelligence & Analytics',
+      subtitle: 'Substance Breakdown & Pricing',
+      description: 'Analytics covering MDMA crystals, Ketamine shards, novel synthetic opioids, counterfeit Oxycodone, and precursor chemicals across darknet markets.',
+      icon: Pill,
+      badge: '15 Active Listings',
+      badgeColor: 'bg-purple-950 text-purple-300 border-purple-800',
+      accentColor: 'border-purple-800/80 hover:border-purple-500',
+      iconColor: 'text-purple-400',
+      statLabel: 'Surge Velocity',
+      statValue: '+84% Monthly Influx'
+    },
+    {
+      id: 'encrypted-platforms',
+      title: 'Encrypted Platform Intelligence',
+      subtitle: 'Identifier Cross-Resolution',
+      description: 'Publicly & lawfully collected communication handles (@indra_ops, Session IDs, Matrix endpoints) mapped directly to darknet seller personas.',
+      icon: MessageSquareCode,
+      badge: '10 Correlated Handles',
+      badgeColor: 'bg-blue-950 text-blue-300 border-blue-800',
+      accentColor: 'border-blue-800/80 hover:border-blue-500',
+      iconColor: 'text-blue-400',
+      statLabel: 'Correlation Accuracy',
+      statValue: '91% Confidence'
     }
   ];
 
   return (
-    <div className="space-y-6 font-mono pb-12">
-      {/* Top Banner: Operations Center Status */}
-      <div className="rounded-xl bg-gradient-to-r from-slate-900 via-[#0C1424] to-slate-900 border border-cyan-800/50 p-5 shadow-xl relative overflow-hidden">
-        <div className="absolute right-0 top-0 w-96 h-full bg-cyan-500/5 pointer-events-none radar-grid"></div>
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative z-10">
-          <div className="space-y-1.5">
-            <div className="flex items-center space-x-2">
+    <div className="space-y-8 font-mono max-w-7xl mx-auto pb-16">
+      {/* 1. Executive Operations Header */}
+      <div className="rounded-2xl bg-gradient-to-r from-[#0C121E] via-[#0E1729] to-[#0C121E] border border-cyan-800/50 p-6 md:p-8 shadow-2xl relative overflow-hidden">
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 relative z-10">
+          <div className="space-y-2 max-w-2xl">
+            <div className="flex items-center space-x-2.5">
               <span className="flex h-2.5 w-2.5 relative">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-500"></span>
               </span>
               <span className="text-xs font-bold uppercase tracking-widest text-cyan-400">
-                CYBER NARCOTICS FUSION ENGINE — STATUS: ONLINE
+                DRUG INTELLIGENCE FUSION SYSTEM • CHANDIGARH POLICE
               </span>
             </div>
-            <h1 className="text-xl md:text-2xl font-bold text-slate-100 tracking-tight">
-              Chandigarh Police Drug Intelligence Operations Center
+            <h1 className="text-2xl md:text-3xl font-bold text-slate-100 tracking-tight">
+              Intelligence Operations Center
             </h1>
-            <p className="text-xs text-slate-400 max-w-3xl leading-relaxed">
-              Automated multi-source correlation correlating darknet marketplace storefronts, encrypted platform identifiers, cryptocurrency settlement traces, and forensic evidence.
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Law-enforcement intelligence fusion engine correlating darknet marketplace vendor personas, encrypted communication handles, and cryptocurrency settlement flows into actionable evidence.
             </p>
           </div>
 
-          {/* Quick Primary Target Action */}
-          <div className="flex items-center space-x-3 bg-slate-950/80 p-3 rounded-lg border border-rose-800/60">
-            <div>
-              <div className="text-[10px] text-slate-400 uppercase">Primary Target:</div>
-              <div className="text-sm font-bold text-rose-300">INDRA_47 (Entity-0047)</div>
-              <div className="text-[10px] text-slate-400">Risk: 87/100 | Confidence: 91%</div>
+          {/* Primary Target Spotlight Card */}
+          <div className="w-full lg:w-auto p-4 rounded-xl bg-slate-950/90 border border-rose-800/80 shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <span className="text-[10px] text-slate-400 uppercase font-semibold">Priority Suspect Target</span>
+              <div className="text-lg font-bold text-rose-300">INDRA_47 (Entity-0047)</div>
+              <div className="text-xs text-slate-400 font-mono">
+                Risk: <span className="text-rose-400 font-bold">87/100</span> | Confidence: <span className="text-cyan-400 font-bold">91%</span>
+              </div>
             </div>
+
             <button
               onClick={() => onSelectEntity('ENTITY-0047')}
-              className="px-3 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-slate-950 font-bold text-xs flex items-center space-x-1.5 transition-all shadow-md"
+              className="px-4 py-2.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-slate-950 font-bold text-xs flex items-center space-x-2 transition-all shadow-md shadow-rose-950/50"
             >
-              <span>Inspect Profile</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              <span>Inspect 360° Profile</span>
+              <ArrowRight className="w-4 h-4" />
             </button>
           </div>
         </div>
       </div>
 
-      {/* KPI Cards Grid (6 Main Metrics) */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3.5">
-        {kpis.map((kpi) => {
-          const Icon = kpi.icon;
-          return (
-            <div
-              key={kpi.id}
-              onClick={() => onNavigate(kpi.target)}
-              className={`p-4 rounded-xl border ${kpi.borderColor} ${kpi.bgColor} hover:bg-slate-900/90 transition-all cursor-pointer group shadow-sm hover:shadow-cyan-900/20 hover:scale-[1.02] flex flex-col justify-between`}
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold text-slate-400 tracking-wider uppercase">
-                  {kpi.label}
-                </span>
-                <Icon
-                  className={`w-4 h-4 ${kpi.color} ${
-                    kpi.pulse ? 'animate-pulse' : ''
-                  }`}
-                />
-              </div>
-
-              <div className="my-2">
-                <div className={`text-2xl md:text-3xl font-bold font-mono text-slate-100 ${kpi.color}`}>
-                  {kpi.value}
-                </div>
-                <div className="text-[10px] text-slate-400 truncate mt-0.5">{kpi.sub}</div>
-              </div>
-
-              <div className="text-[10px] text-slate-500 group-hover:text-cyan-400 flex items-center space-x-1 pt-1 border-t border-slate-800/60">
-                <span>View Details</span>
-                <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
-              </div>
+      {/* 2. Top High-Risk Alert Notice */}
+      {topCriticalAlert && (
+        <div 
+          onClick={() => onSelectAlert(topCriticalAlert.id)}
+          className="p-4 rounded-xl bg-gradient-to-r from-rose-950/40 via-slate-900 to-slate-900 border border-rose-600/50 hover:border-rose-400 transition-all cursor-pointer group flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-md"
+        >
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 rounded-lg bg-rose-950 border border-rose-600/60 flex items-center justify-center text-rose-400 flex-shrink-0">
+              <Flame className="w-4 h-4 animate-pulse" />
             </div>
-          );
-        })}
-      </div>
-
-      {/* Main Operations Split (Left: High Risk Alert Center & Fusion Engine, Right: Live Intelligence Stream) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column: High-Priority Threat Triage & Cross-Source Fusion */}
-        <div className="lg:col-span-7 space-y-6">
-          {/* High-Risk Alert Box */}
-          <div className="rounded-xl bg-slate-900/80 border border-slate-800 p-4 space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div>
               <div className="flex items-center space-x-2">
-                <Flame className="w-4 h-4 text-rose-400" />
-                <h2 className="text-sm font-bold text-slate-100 uppercase tracking-wide">
-                  High-Risk Alerts Requiring Triage
-                </h2>
+                <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-rose-950 text-rose-300 border border-rose-800">
+                  {topCriticalAlert.severity}
+                </span>
+                <span className="font-bold text-slate-100 text-xs group-hover:text-cyan-300">
+                  {topCriticalAlert.title}
+                </span>
               </div>
-              <button
-                onClick={() => onNavigate('alert-center')}
-                className="text-xs text-cyan-400 hover:text-cyan-300 flex items-center space-x-1"
-              >
-                <span>View All (12)</span>
-                <ArrowRight className="w-3 h-3" />
-              </button>
-            </div>
-
-            <div className="space-y-2.5">
-              {alerts.slice(0, 3).map((a) => (
-                <div
-                  key={a.id}
-                  onClick={() => onSelectAlert(a.id)}
-                  className="p-3 rounded-lg bg-slate-950/70 border border-slate-800 hover:border-rose-500/50 transition-all cursor-pointer group space-y-1.5"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded ${
-                        a.severity === 'CRITICAL' ? 'bg-rose-950 text-rose-300 border border-rose-800' : 'bg-amber-950 text-amber-300 border border-amber-800'
-                      }`}>
-                        {a.severity}
-                      </span>
-                      <span className="font-bold text-slate-200 group-hover:text-cyan-300 text-xs">
-                        {a.title}
-                      </span>
-                    </div>
-                    <span className="text-[10px] text-slate-500">{a.timestamp.split('T')[1]?.slice(0, 8)}</span>
-                  </div>
-
-                  <p className="text-[11px] text-slate-400 leading-relaxed">
-                    {a.reason}
-                  </p>
-
-                  <div className="flex items-center justify-between text-[10px] pt-1 text-slate-500">
-                    <span>Source: <span className="text-slate-300">{a.source}</span></span>
-                    <span className="text-cyan-400 font-semibold">Confidence: {a.confidence}%</span>
-                  </div>
-                </div>
-              ))}
+              <p className="text-[11px] text-slate-400 mt-0.5 line-clamp-1">
+                {topCriticalAlert.reason}
+              </p>
             </div>
           </div>
 
-          {/* Cross-Source Correlation Showcase */}
-          <div className="rounded-xl bg-slate-900/80 border border-cyan-900/50 p-4 space-y-3 shadow-inner">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-              <div className="flex items-center space-x-2 text-cyan-400">
-                <Share2 className="w-4 h-4" />
-                <h3 className="text-xs font-bold uppercase tracking-wider">
-                  Automated Entity Correlation Cluster (INDRA_47)
-                </h3>
-              </div>
-              <span className="text-[10px] px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800 font-bold">
-                91% MATCH CONFIDENCE
-              </span>
-            </div>
-
-            <div className="p-3 bg-slate-950/80 rounded-lg border border-slate-800/80 space-y-2 text-xs">
-              <div className="font-semibold text-slate-200 flex items-center justify-between">
-                <span>Unified Suspect Entity: INDRA_47</span>
-                <span className="text-slate-400 text-[11px]">Entity ID: ENTITY-0047</span>
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-[11px] pt-1">
-                <div className="p-2 rounded bg-slate-900 border border-slate-800">
-                  <span className="text-slate-500 block text-[10px]">Darknet Seller</span>
-                  <span className="text-slate-200 font-semibold">INDRA_47 (Abyss & SilkForge)</span>
-                </div>
-                <div className="p-2 rounded bg-slate-900 border border-slate-800">
-                  <span className="text-slate-500 block text-[10px]">Communication ID</span>
-                  <span className="text-purple-300 font-semibold">@indra_ops (Telegram)</span>
-                </div>
-                <div className="p-2 rounded bg-slate-900 border border-slate-800">
-                  <span className="text-slate-500 block text-[10px]">Crypto Wallet</span>
-                  <span className="text-amber-300 font-semibold">bc1q92fa...92fa</span>
-                </div>
-                <div className="p-2 rounded bg-slate-900 border border-slate-800">
-                  <span className="text-slate-500 block text-[10px]">Drug Indicators</span>
-                  <span className="text-emerald-300 font-semibold">MDMA, Ketamine, Opioids</span>
-                </div>
-                <div className="p-2 rounded bg-slate-900 border border-slate-800">
-                  <span className="text-slate-500 block text-[10px]">Related Precursor Broker</span>
-                  <span className="text-rose-300 font-semibold">VIPER_CORP (Entity-0018)</span>
-                </div>
-                <div className="p-2 rounded bg-slate-900 border border-slate-800">
-                  <span className="text-slate-500 block text-[10px]">Historical Activity</span>
-                  <span className="text-cyan-300 font-semibold">6 Listings / 19 Evidences</span>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between pt-2 border-t border-slate-800/80">
-                <span className="text-[11px] text-slate-400">Match Signals: Alias exact (+30), Wallet link (+30), Comms ID (+25)</span>
-                <button
-                  onClick={() => onNavigate('network-graph')}
-                  className="text-xs text-cyan-400 hover:text-cyan-300 font-bold flex items-center space-x-1"
-                >
-                  <span>Open Interactive Graph</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
+          <div className="flex items-center space-x-2 text-xs text-rose-300 font-bold group-hover:text-cyan-300 flex-shrink-0">
+            <span>Triage Alert in Center</span>
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </div>
         </div>
+      )}
 
-        {/* Right Column: Live Intelligence Stream Feed */}
-        <div className="lg:col-span-5 space-y-4">
-          <div className="rounded-xl bg-slate-900/80 border border-slate-800 p-4 flex flex-col h-full">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
-              <div className="flex items-center space-x-2">
-                <Radio className="w-4 h-4 text-cyan-400 animate-pulse" />
-                <h2 className="text-sm font-bold text-slate-100 uppercase tracking-wide">
-                  Live Intelligence Stream
-                </h2>
-              </div>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800 uppercase">
-                STREAMING ACTIVE
-              </span>
-            </div>
+      {/* 3. Dedicated Intelligence Module Hubs (6 Clean, Clickable Gateways) */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+          <div className="flex items-center space-x-2 text-slate-200">
+            <Shield className="w-4 h-4 text-cyan-400" />
+            <h2 className="text-sm font-bold uppercase tracking-wider">
+              Dedicated Intelligence Modules & Workspaces
+            </h2>
+          </div>
+          <span className="text-xs text-slate-500">Select any module to open dedicated workspace</span>
+        </div>
 
-            <div className="space-y-2.5 overflow-y-auto max-h-[520px] pr-1">
-              {liveFeed.slice(0, 7).map((item) => (
-                <div
-                  key={item.id}
-                  className="p-3 rounded-lg bg-slate-950/70 border border-slate-800 hover:border-slate-700 transition-colors space-y-1 text-xs"
-                >
-                  <div className="flex items-center justify-between text-[11px]">
-                    <span className="font-mono font-bold text-slate-400">{item.timestamp.split('T')[1]?.slice(0, 8)}</span>
-                    <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded ${
-                      item.severity === 'CRITICAL' ? 'bg-rose-950 text-rose-300' : item.severity === 'HIGH' ? 'bg-amber-950 text-amber-300' : 'bg-cyan-950 text-cyan-300'
-                    }`}>
-                      {item.event_type}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {modules.map((m) => {
+            const Icon = m.icon;
+            return (
+              <div
+                key={m.id}
+                onClick={() => onNavigate(m.id)}
+                className={`p-6 rounded-2xl bg-[#0B101C] border ${m.accentColor} hover:bg-[#0E1526] transition-all cursor-pointer group shadow-lg flex flex-col justify-between space-y-4 hover:scale-[1.01]`}
+              >
+                {/* Header */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className={`w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center ${m.iconColor} group-hover:scale-110 transition-transform`}>
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${m.badgeColor}`}>
+                      {m.badge}
                     </span>
                   </div>
 
-                  <div className="font-bold text-slate-200">
-                    {item.title}
+                  <div>
+                    <h3 className="font-bold text-slate-100 text-base group-hover:text-cyan-300 transition-colors">
+                      {m.title}
+                    </h3>
+                    <div className="text-[11px] text-slate-400 mt-0.5">{m.subtitle}</div>
                   </div>
 
-                  <p className="text-[11px] text-slate-400 leading-relaxed">
-                    {item.description}
+                  <p className="text-xs text-slate-400 leading-relaxed">
+                    {m.description}
                   </p>
+                </div>
 
-                  <div className="flex items-center justify-between text-[10px] pt-1 text-slate-500 border-t border-slate-800/60">
-                    <span>Source: {item.source}</span>
-                    {item.evidence_id && (
-                      <span className="text-cyan-400 font-mono">{item.evidence_id}</span>
-                    )}
+                {/* Footer Strip */}
+                <div className="pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
+                  <div>
+                    <span className="text-[10px] text-slate-500 block">{m.statLabel}</span>
+                    <span className="font-bold text-slate-200 text-xs font-mono">{m.statValue}</span>
+                  </div>
+
+                  <div className="flex items-center space-x-1 text-cyan-400 font-bold group-hover:translate-x-1 transition-transform">
+                    <span>Launch</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
 
-            <button
-              onClick={() => onNavigate('live-feed')}
-              className="w-full mt-3 py-2 rounded-lg bg-slate-800/90 hover:bg-slate-700 text-slate-300 text-xs font-semibold flex items-center justify-center space-x-1.5 transition-colors border border-slate-700"
-            >
-              <span>Open Dedicated Live Feed Console</span>
-              <ExternalLink className="w-3.5 h-3.5" />
-            </button>
-          </div>
+      {/* 4. Quick Actions / Governance Strip */}
+      <div className="p-5 rounded-xl bg-slate-900/60 border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
+        <div className="flex items-center space-x-3 text-slate-400">
+          <Database className="w-4 h-4 text-emerald-400" />
+          <span>Evidence Vault: <strong className="text-slate-200">30 exhibits</strong> with SHA-256 integrity verification</span>
+        </div>
+
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={() => onNavigate('evidence-vault')}
+            className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold"
+          >
+            Open Evidence Vault
+          </button>
+          <button
+            onClick={() => onNavigate('timeline')}
+            className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold"
+          >
+            View Full Timeline
+          </button>
         </div>
       </div>
     </div>

@@ -4,17 +4,13 @@ import {
   FileText, 
   Users, 
   GitBranch, 
-  Share2, 
   Database, 
-  BellRing, 
-  Radio, 
-  Download, 
-  CheckCircle2,
   ExternalLink,
-  Lock,
-  Layers
+  ShieldAlert,
+  Download,
+  CheckCircle2
 } from 'lucide-react';
-import { InvestigationCase, EvidenceRecord, TimelineEvent } from '../types/intelligence';
+import { InvestigationCase } from '../types/intelligence';
 import { api } from '../services/api';
 
 interface InvestigationWorkspaceViewProps {
@@ -32,7 +28,7 @@ export const InvestigationWorkspaceView: React.FC<InvestigationWorkspaceViewProp
 }) => {
   const [cases, setCases] = useState<InvestigationCase[]>([]);
   const [selectedCase, setSelectedCase] = useState<InvestigationCase | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'entities' | 'timeline' | 'evidence' | 'report'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'entities' | 'timeline' | 'evidence'>('overview');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -65,39 +61,38 @@ export const InvestigationWorkspaceView: React.FC<InvestigationWorkspaceViewProp
   };
 
   const tabs = [
-    { id: 'overview', label: '1. Case Overview' },
-    { id: 'entities', label: `2. Targets (${selectedCase?.linked_entities?.length || 0})` },
-    { id: 'timeline', label: `3. Timeline (${selectedCase?.timeline_records?.length || 0})` },
-    { id: 'evidence', label: `4. Evidence Exhibits (${selectedCase?.evidence_records?.length || 0})` },
-    { id: 'report', label: '5. Intelligence Dossier' }
+    { id: 'overview', label: '1. Case Overview & Objectives' },
+    { id: 'entities', label: `2. Suspect Targets (${selectedCase?.linked_entities?.length || 0})` },
+    { id: 'timeline', label: `3. Case Timeline (${selectedCase?.timeline_records?.length || 0})` },
+    { id: 'evidence', label: `4. Sealed Evidence (${selectedCase?.evidence_records?.length || 0})` }
   ];
 
   return (
-    <div className="space-y-6 font-mono pb-16">
-      {/* Top Header */}
+    <div className="space-y-6 font-mono max-w-7xl mx-auto pb-16">
+      {/* Header */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
         <div>
           <div className="flex items-center space-x-2">
             <Briefcase className="w-5 h-5 text-cyan-400" />
             <h1 className="text-xl font-bold text-slate-100 uppercase tracking-tight">
-              Investigation Workspace & Case Dossiers
+              Investigation Workspace
             </h1>
           </div>
           <p className="text-xs text-slate-400 mt-0.5">
-            Structured case management, multi-source digital exhibit aggregation, and formal intelligence dossiers
+            Dedicated case workspace for managing active operations, evidence exhibits, and intelligence dossiers
           </p>
         </div>
 
-        {/* Case Switcher */}
-        <div className="flex items-center space-x-2">
+        {/* Case Switcher & Report Action */}
+        <div className="flex flex-wrap items-center gap-2.5">
           <select
             value={selectedCase?.id || ''}
             onChange={(e) => handleSelectCase(e.target.value)}
-            className="bg-slate-900 border border-slate-700 text-slate-200 text-xs font-mono rounded-lg px-3 py-1.5 focus:outline-none focus:border-cyan-500 font-semibold"
+            className="bg-slate-900 border border-slate-700 text-slate-200 text-xs font-mono rounded-lg px-3 py-2 focus:outline-none focus:border-cyan-500 font-semibold"
           >
             {cases.map((c) => (
               <option key={c.id} value={c.id}>
-                {c.case_number}: {c.title.slice(0, 45)}...
+                {c.case_number}: {c.title.slice(0, 40)}...
               </option>
             ))}
           </select>
@@ -105,10 +100,10 @@ export const InvestigationWorkspaceView: React.FC<InvestigationWorkspaceViewProp
           {selectedCase && (
             <button
               onClick={() => onGenerateReport(selectedCase.id)}
-              className="flex items-center space-x-1.5 px-3.5 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold text-xs transition-all shadow-md shadow-cyan-900/30"
+              className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold text-xs transition-all shadow-lg shadow-cyan-900/30"
             >
               <FileText className="w-4 h-4" />
-              <span>Generate Intelligence Report</span>
+              <span>Generate Official Dossier</span>
             </button>
           )}
         </div>
@@ -116,48 +111,46 @@ export const InvestigationWorkspaceView: React.FC<InvestigationWorkspaceViewProp
 
       {selectedCase && (
         <div className="space-y-6">
-          {/* Case Header Card */}
-          <div className="rounded-2xl bg-gradient-to-r from-slate-900 via-[#0D1525] to-slate-900 border border-slate-700 p-6 shadow-xl space-y-4">
+          {/* Main Case Summary Banner */}
+          <div className="rounded-2xl bg-gradient-to-r from-slate-900 via-[#0D1525] to-slate-900 border border-slate-700/90 p-6 md:p-8 shadow-xl space-y-4">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
               <div>
                 <div className="flex items-center space-x-3">
-                  <span className="font-mono text-cyan-400 font-bold text-sm bg-cyan-950 px-2 py-0.5 rounded border border-cyan-800">
+                  <span className="font-mono text-cyan-400 font-bold text-sm bg-cyan-950 px-2.5 py-1 rounded border border-cyan-800">
                     {selectedCase.case_number}
                   </span>
-                  <span className="text-xs px-2 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-800 font-bold uppercase">
+                  <span className="text-xs px-2.5 py-1 rounded bg-rose-950 text-rose-300 border border-rose-800 font-bold uppercase">
                     THREAT: {selectedCase.risk_level}
                   </span>
-                  <span className="text-xs px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800 font-bold uppercase">
+                  <span className="text-xs px-2.5 py-1 rounded bg-emerald-950 text-emerald-300 border border-emerald-800 font-bold uppercase">
                     STATUS: {selectedCase.status}
                   </span>
                 </div>
-                <h2 className="text-xl font-bold text-slate-100 mt-2">{selectedCase.title}</h2>
-                <p className="text-xs text-slate-400 mt-1">Lead: {selectedCase.lead_investigator} | {selectedCase.jurisdiction}</p>
+                <h2 className="text-xl md:text-2xl font-bold text-slate-100 mt-2.5">{selectedCase.title}</h2>
+                <p className="text-xs text-slate-400 mt-1 font-mono">
+                  Lead: <strong className="text-slate-200">{selectedCase.lead_investigator}</strong> | Jurisdiction: {selectedCase.jurisdiction}
+                </p>
               </div>
 
-              {/* Quick Metrics */}
+              {/* Counts */}
               <div className="flex items-center space-x-3">
-                <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 text-center min-w-[80px]">
-                  <span className="text-[10px] text-slate-500 uppercase block">Entities</span>
-                  <span className="text-lg font-bold text-cyan-400">{selectedCase.linked_entities?.length || 0}</span>
+                <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 text-center min-w-[90px]">
+                  <span className="text-[10px] text-slate-500 uppercase block">Suspects</span>
+                  <span className="text-xl font-bold text-cyan-400">{selectedCase.linked_entities?.length || 0}</span>
                 </div>
-                <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 text-center min-w-[80px]">
-                  <span className="text-[10px] text-slate-500 uppercase block">Sources</span>
-                  <span className="text-lg font-bold text-purple-400">{selectedCase.linked_sources?.length || 0}</span>
-                </div>
-                <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 text-center min-w-[80px]">
-                  <span className="text-[10px] text-slate-500 uppercase block">Evidence</span>
-                  <span className="text-lg font-bold text-emerald-400">{selectedCase.evidence_count}</span>
+                <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 text-center min-w-[90px]">
+                  <span className="text-[10px] text-slate-500 uppercase block">Exhibits</span>
+                  <span className="text-xl font-bold text-emerald-400">{selectedCase.evidence_count}</span>
                 </div>
               </div>
             </div>
 
-            <p className="text-xs text-slate-300 bg-slate-950/70 p-3 rounded-lg border border-slate-800 leading-relaxed">
+            <p className="text-xs text-slate-300 bg-slate-950/80 p-4 rounded-xl border border-slate-800 leading-relaxed">
               {selectedCase.summary}
             </p>
           </div>
 
-          {/* Tabs Navigation */}
+          {/* Navigation Tabs */}
           <div className="flex border-b border-slate-800 space-x-2 overflow-x-auto pb-1">
             {tabs.map((t) => (
               <button
@@ -165,7 +158,7 @@ export const InvestigationWorkspaceView: React.FC<InvestigationWorkspaceViewProp
                 onClick={() => setActiveTab(t.id as any)}
                 className={`px-4 py-2 rounded-t-lg text-xs font-semibold whitespace-nowrap transition-all ${
                   activeTab === t.id
-                    ? 'bg-slate-800 text-cyan-300 border-t-2 border-cyan-400 border-x border-slate-700'
+                    ? 'bg-slate-800 text-cyan-300 border-t-2 border-cyan-400 border-x border-slate-700 font-bold'
                     : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
                 }`}
               >
@@ -177,7 +170,7 @@ export const InvestigationWorkspaceView: React.FC<InvestigationWorkspaceViewProp
           {/* Tab 1: Overview */}
           {activeTab === 'overview' && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-3">
+              <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-3">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-cyan-400 border-b border-slate-800 pb-2">
                   Investigation Objective
                 </h3>
@@ -186,15 +179,15 @@ export const InvestigationWorkspaceView: React.FC<InvestigationWorkspaceViewProp
                 </p>
               </div>
 
-              <div className="p-5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-3">
+              <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-3">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-cyan-400 border-b border-slate-800 pb-2">
                   Target Controlled Substances
                 </h3>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 pt-1">
                   {selectedCase.target_substances?.map((sub, i) => (
                     <span
                       key={i}
-                      className="px-2.5 py-1 rounded bg-emerald-950 text-emerald-300 border border-emerald-800 text-xs font-semibold"
+                      className="px-3 py-1 rounded-lg bg-emerald-950 text-emerald-300 border border-emerald-800 text-xs font-semibold"
                     >
                       {sub}
                     </span>
@@ -206,11 +199,11 @@ export const InvestigationWorkspaceView: React.FC<InvestigationWorkspaceViewProp
 
           {/* Tab 2: Entities */}
           {activeTab === 'entities' && (
-            <div className="rounded-xl bg-slate-900/80 border border-slate-800 p-5 space-y-4">
+            <div className="rounded-2xl bg-slate-900/80 border border-slate-800 p-6 space-y-4">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-200">
                 Linked Suspect Entities & Syndicates
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
                 {selectedCase.linked_entities?.map((ent, i) => (
                   <div
                     key={i}
@@ -218,13 +211,13 @@ export const InvestigationWorkspaceView: React.FC<InvestigationWorkspaceViewProp
                       const entityId = ent.includes('INDRA_47') ? 'ENTITY-0047' : ent.split(' ')[0];
                       onSelectEntity(entityId);
                     }}
-                    className="p-3 rounded-lg bg-slate-950 border border-slate-800 hover:border-cyan-500/50 cursor-pointer flex items-center justify-between transition-colors group"
+                    className="p-4 rounded-xl bg-slate-950 border border-slate-800 hover:border-cyan-500/50 cursor-pointer flex items-center justify-between transition-colors group"
                   >
-                    <div className="flex items-center space-x-2">
-                      <span className="w-2 h-2 rounded-full bg-rose-400"></span>
+                    <div className="flex items-center space-x-2.5">
+                      <span className="w-2.5 h-2.5 rounded-full bg-rose-400"></span>
                       <span className="font-bold text-slate-200 group-hover:text-cyan-300 text-xs">{ent}</span>
                     </div>
-                    <ExternalLink className="w-3.5 h-3.5 text-slate-500 group-hover:text-cyan-400" />
+                    <ExternalLink className="w-4 h-4 text-slate-500 group-hover:text-cyan-400" />
                   </div>
                 ))}
               </div>
@@ -233,11 +226,11 @@ export const InvestigationWorkspaceView: React.FC<InvestigationWorkspaceViewProp
 
           {/* Tab 3: Timeline */}
           {activeTab === 'timeline' && (
-            <div className="rounded-xl bg-slate-900/80 border border-slate-800 p-5 space-y-4">
+            <div className="rounded-2xl bg-slate-900/80 border border-slate-800 p-6 space-y-4">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-200">
                 Case Activity Timeline ({selectedCase.timeline_records?.length})
               </h3>
-              <div className="space-y-3 relative before:absolute before:left-3 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-800 pl-8">
+              <div className="space-y-3.5 relative before:absolute before:left-3 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-800 pl-8">
                 {selectedCase.timeline_records?.map((evt) => (
                   <div key={evt.id} className="relative space-y-1 text-xs">
                     <span className="absolute -left-[27px] top-1.5 w-2.5 h-2.5 rounded-full bg-cyan-400 ring-4 ring-slate-950"></span>
@@ -254,45 +247,26 @@ export const InvestigationWorkspaceView: React.FC<InvestigationWorkspaceViewProp
 
           {/* Tab 4: Evidence Exhibits */}
           {activeTab === 'evidence' && (
-            <div className="rounded-xl bg-slate-900/80 border border-slate-800 p-5 space-y-4">
+            <div className="rounded-2xl bg-slate-900/80 border border-slate-800 p-6 space-y-4">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-200">
                 Sealed Evidence Records ({selectedCase.evidence_records?.length})
               </h3>
-              <div className="space-y-2.5">
+              <div className="space-y-3">
                 {selectedCase.evidence_records?.map((ev) => (
-                  <div key={ev.id} className="p-3 rounded-lg bg-slate-950 border border-slate-800 space-y-1.5 text-xs">
+                  <div key={ev.id} className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-1.5 text-xs">
                     <div className="flex items-center justify-between">
                       <span className="font-mono font-bold text-cyan-400">{ev.id}: {ev.title}</span>
-                      <span className="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800 text-[10px]">
+                      <span className="px-2.5 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800 text-[10px] font-bold">
                         {ev.integrity_status}
                       </span>
                     </div>
-                    <p className="text-[11px] text-slate-400">{ev.description}</p>
+                    <p className="text-[11px] text-slate-300">{ev.description}</p>
                     <div className="text-[10px] text-slate-500 font-mono">
                       SHA-256: {ev.sha256_hash}
                     </div>
                   </div>
                 ))}
               </div>
-            </div>
-          )}
-
-          {/* Tab 5: Report Trigger */}
-          {activeTab === 'report' && (
-            <div className="p-8 text-center rounded-xl bg-slate-900/80 border border-cyan-800/60 space-y-4">
-              <FileText className="w-12 h-12 text-cyan-400 mx-auto" />
-              <div className="space-y-1">
-                <h3 className="text-base font-bold text-slate-100">Ready to Generate Official Intelligence Dossier</h3>
-                <p className="text-xs text-slate-400 max-w-md mx-auto">
-                  Aggregates all 10 intelligence sections including executive summary, cross-platform correlations, cryptocurrency ledger analysis, and SHA-256 evidence indexes.
-                </p>
-              </div>
-              <button
-                onClick={() => onGenerateReport(selectedCase.id)}
-                className="px-5 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold text-xs transition-all shadow-lg"
-              >
-                Launch Intelligence Dossier Preview
-              </button>
             </div>
           )}
         </div>
