@@ -224,6 +224,7 @@ export function App() {
     );
   }
 
+
   return (
     <div className="min-h-screen bg-[#06090F] text-slate-200 flex flex-col">
       {/* Top Navbar */}

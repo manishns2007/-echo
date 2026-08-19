@@ -1,21 +1,22 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Shield,
-  ArrowRight,
+  LayoutDashboard,
   Share2,
   Briefcase,
-  Coins,
-  Pill,
-  MessageSquareCode,
   FileText,
-  Database,
+  LogIn,
+  Eye,
+  EyeOff,
   Lock,
+  User,
   ChevronRight,
-  ExternalLink,
-  Layers,
-  Sparkles,
-  Zap,
-  Activity
+  Activity,
+  AlertTriangle,
+  Database,
+  Cpu,
+  Radio,
+  Clock,
 } from 'lucide-react';
 
 interface LandingPageViewProps {
@@ -24,253 +25,377 @@ interface LandingPageViewProps {
   onStartDemoTour: () => void;
 }
 
-export const LandingPageView: React.FC<LandingPageViewProps> = ({
-  onNavigate,
-  onSelectEntity,
-  onStartDemoTour
-}) => {
+const ROLES = [
+  {
+    value: 'Investigator',
+    label: 'DSP R. Sharma',
+    rank: 'Deputy Superintendent of Police',
+    badge: 'CPD-0047',
+    access: 'FULL ACCESS — Investigation, Reports, Evidence',
+  },
+  {
+    value: 'Analyst',
+    label: 'P. Kaur',
+    rank: 'Intelligence Analyst',
+    badge: 'CPD-0112',
+    access: 'READ ONLY — Analysis & Network Views',
+  },
+  {
+    value: 'Administrator',
+    label: 'Admin-01',
+    rank: 'Technical Lead / Systems',
+    badge: 'CPD-ADMIN',
+    access: 'SYSTEM ACCESS — Audit, Configuration',
+  },
+];
+
+const MODULES = [
+  { id: 'home', label: 'Command Center', icon: LayoutDashboard, desc: 'Operations overview & live alerts' },
+  { id: 'investigations', label: 'Investigations', icon: Briefcase, desc: 'Active case files & evidence' },
+  { id: 'agents', label: 'Network Graph', icon: Share2, desc: 'Entity relationship visualizer' },
+  { id: 'report-generation', label: 'Report Studio', icon: FileText, desc: 'Official intelligence dossiers' },
+];
+
+const TICKER_ITEMS = [
+  { label: 'ACTIVE CASES', value: '2', color: 'text-cyan-400' },
+  { label: 'SUSPECT ENTITIES', value: '8', color: 'text-amber-400' },
+  { label: 'OPEN ALERTS', value: '6', color: 'text-rose-400' },
+  { label: 'EVIDENCE EXHIBITS', value: '16', color: 'text-emerald-400' },
+  { label: 'WALLETS TRACKED', value: '6', color: 'text-purple-400' },
+  { label: 'TIMELINE EVENTS', value: '20', color: 'text-blue-400' },
+];
+
+export const LandingPageView: React.FC<LandingPageViewProps> = ({ onNavigate }) => {
+  const [showLogin, setShowLogin] = useState(false);
+  const [selectedRole, setSelectedRole] = useState(ROLES[0]);
+  const [pin, setPin] = useState('');
+  const [showPin, setShowPin] = useState(false);
+  const [loginError, setLoginError] = useState('');
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [tickerIndex, setTickerIndex] = useState(0);
+  const [time, setTime] = useState(new Date());
+
+  // Live clock
+  useEffect(() => {
+    const t = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  // Ticker rotation
+  useEffect(() => {
+    const t = setInterval(() => setTickerIndex(i => (i + 1) % TICKER_ITEMS.length), 2800);
+    return () => clearInterval(t);
+  }, []);
+
+  const handleLogin = () => {
+    if (pin.length < 4) {
+      setLoginError('Enter your 4-digit access PIN.');
+      return;
+    }
+    setLoginLoading(true);
+    setLoginError('');
+    setTimeout(() => {
+      setLoginLoading(false);
+      onNavigate('home');
+    }, 1100);
+  };
+
+  const ticker = TICKER_ITEMS[tickerIndex];
+
   return (
-    <div className="min-h-screen bg-[#050811] text-slate-100 font-sans relative overflow-x-hidden selection:bg-cyan-500/30 selection:text-cyan-200">
-      {/* Background Dot Matrix & Radial Glow */}
-      <div 
-        className="absolute inset-0 pointer-events-none opacity-20"
+    <div className="min-h-screen bg-[#06090F] text-slate-100 flex flex-col overflow-hidden relative">
+
+      {/* ── Animated background grid ── */}
+      <div
+        className="absolute inset-0 pointer-events-none"
         style={{
-          backgroundImage: `radial-gradient(#38bdf8 1px, transparent 1px)`,
-          backgroundSize: '32px 32px'
+          backgroundImage:
+            'linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)',
+          backgroundSize: '48px 48px',
         }}
       />
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[450px] bg-blue-600/15 rounded-full blur-[140px] pointer-events-none" />
-      <div className="absolute top-1/3 left-1/3 w-[400px] h-[300px] bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none" />
+      {/* Radial glow */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[400px] bg-cyan-500/5 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-0 right-0 w-[500px] h-[300px] bg-indigo-500/5 rounded-full blur-[100px] pointer-events-none" />
 
-      {/* 1. Sleek Navigation Header */}
-      <header className="relative z-30 max-w-7xl mx-auto px-6 h-20 flex items-center justify-between border-b border-slate-800/40">
-        {/* Brand Logo */}
-        <div 
-          onClick={() => onNavigate('landing')}
-          className="flex items-center space-x-3 cursor-pointer group"
+      {/* ── Top status bar ── */}
+      <div className="relative z-10 border-b border-white/[0.05] bg-[#06090F]/90 backdrop-blur-sm px-6 py-2.5 flex items-center justify-between text-[11px] font-mono">
+        <div className="flex items-center gap-4 text-slate-500">
+          <div className="flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-emerald-500">SYSTEM ONLINE</span>
+          </div>
+          <span className="text-slate-700">|</span>
+          <span>CHANDIGARH POLICE · CYBER NARCOTICS DIVISION</span>
+          <span className="text-slate-700">|</span>
+          <span>HACKATHON TRACK 3 — PROTOTYPE</span>
+        </div>
+        <div className="flex items-center gap-3 text-slate-500">
+          <div className={`flex items-center gap-2 transition-all ${ticker.color}`}>
+            <span className="text-slate-600 text-[10px]">{ticker.label}</span>
+            <span className="font-bold text-sm">{ticker.value}</span>
+          </div>
+          <span className="text-slate-700">|</span>
+          <div className="flex items-center gap-1.5 text-slate-500">
+            <Clock className="w-3 h-3" />
+            <span>{time.toLocaleTimeString('en-IN', { hour12: false })}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Main layout: left panel + right content ── */}
+      <div className="flex-1 flex relative z-10">
+
+        {/* ════════════════════════════════
+            LEFT PANEL — Reddit-style navigation
+            ════════════════════════════════ */}
+        <div className="w-72 border-r border-white/[0.05] flex flex-col py-8 px-5 gap-8 shrink-0">
+
+          {/* Brand */}
+          <div className="space-y-1">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+                <Shield className="w-5 h-5 text-cyan-400" />
+              </div>
+              <div>
+                <div className="text-[15px] font-bold tracking-wide text-slate-100 font-mono">NARCO-FUSION</div>
+                <div className="text-[10px] text-slate-500">v2.4 — Intelligence Platform</div>
+              </div>
+            </div>
+            <div className="h-px bg-white/[0.05] mt-4" />
+          </div>
+
+          {/* Module links — Reddit style */}
+          <nav className="space-y-1">
+            {MODULES.map(m => {
+              const Icon = m.icon;
+              return (
+                <button
+                  key={m.id}
+                  onClick={() => setShowLogin(true)}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded hover:bg-white/[0.05] text-left text-slate-400 hover:text-slate-100 transition-colors group"
+                >
+                  <Icon className="w-5 h-5 text-slate-500 group-hover:text-cyan-400 transition-colors shrink-0" />
+                  <div>
+                    <div className="text-[13px] font-medium text-slate-300 group-hover:text-slate-100">{m.label}</div>
+                    <div className="text-[10px] text-slate-600">{m.desc}</div>
+                  </div>
+                </button>
+              );
+            })}
+          </nav>
+
+          <div className="h-px bg-white/[0.05]" />
+
+          {/* Login CTA */}
+          <button
+            onClick={() => setShowLogin(true)}
+            className="flex items-center gap-3 px-3 py-2.5 rounded bg-cyan-500/10 hover:bg-cyan-500/15 border border-cyan-500/20 hover:border-cyan-500/40 text-cyan-300 transition-all group"
+          >
+            <LogIn className="w-5 h-5 shrink-0" />
+            <div className="text-left">
+              <div className="text-[13px] font-semibold">Sign In</div>
+              <div className="text-[10px] text-cyan-500/70">Authenticate with badge PIN</div>
+            </div>
+          </button>
+
+          {/* System indicators */}
+          <div className="mt-auto space-y-2">
+            <div className="flex items-center justify-between text-[10px] font-mono text-slate-600">
+              <div className="flex items-center gap-1.5">
+                <Cpu className="w-3 h-3" />
+                <span>Backend</span>
+              </div>
+              <span className="text-emerald-500">ONLINE :8000</span>
+            </div>
+            <div className="flex items-center justify-between text-[10px] font-mono text-slate-600">
+              <div className="flex items-center gap-1.5">
+                <Database className="w-3 h-3" />
+                <span>Evidence Vault</span>
+              </div>
+              <span className="text-emerald-500">SEALED</span>
+            </div>
+            <div className="flex items-center justify-between text-[10px] font-mono text-slate-600">
+              <div className="flex items-center gap-1.5">
+                <Radio className="w-3 h-3" />
+                <span>Live Feed</span>
+              </div>
+              <span className="text-cyan-500 animate-pulse">STREAMING</span>
+            </div>
+          </div>
+        </div>
+
+        {/* ════════════════════════════════
+            RIGHT CONTENT — Dynamic hero
+            ════════════════════════════════ */}
+        <div className="flex-1 flex flex-col items-center justify-center px-8 py-12 gap-10">
+
+          {/* Hero text */}
+          <div className="text-center max-w-2xl space-y-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-rose-500/20 bg-rose-500/5 text-rose-400 text-[11px] font-mono tracking-wider">
+              <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse" />
+              CLASSIFIED — AUTHORISED PERSONNEL ONLY
+            </div>
+            <h1 className="text-4xl sm:text-5xl font-bold text-slate-100 leading-tight tracking-tight">
+              Dark Web & Encrypted<br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">
+                Drug Intelligence Operations
+              </span>
+            </h1>
+            <p className="text-slate-500 text-sm leading-relaxed font-sans max-w-lg mx-auto">
+              Intelligence fusion platform for detecting illicit drug sales on darknet markets
+              and encrypted communication channels. Built for Chandigarh Police — Hackathon Track 3.
+            </p>
+          </div>
+
+          {/* Dynamic case stats grid */}
+          <div className="grid grid-cols-3 gap-4 w-full max-w-xl">
+            {[
+              { label: 'Active Cases', value: '2', sub: 'CHD-0047 · CHD-0012', color: 'border-cyan-500/20 bg-cyan-500/5 text-cyan-400' },
+              { label: 'Threat Level', value: 'CRITICAL', sub: 'Score 87/100', color: 'border-rose-500/20 bg-rose-500/5 text-rose-400' },
+              { label: 'Open Alerts', value: '6', sub: '3 unacknowledged', color: 'border-amber-500/20 bg-amber-500/5 text-amber-400' },
+            ].map(s => (
+              <div key={s.label} className={`rounded border ${s.color} px-4 py-3.5 text-center`}>
+                <div className={`text-2xl font-bold font-mono ${s.color.split(' ').find(c => c.startsWith('text-'))}`}>{s.value}</div>
+                <div className="text-[11px] text-slate-400 mt-0.5">{s.label}</div>
+                <div className="text-[10px] text-slate-600 mt-0.5 font-mono">{s.sub}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Primary action */}
+          <button
+            onClick={() => setShowLogin(true)}
+            className="flex items-center gap-2.5 px-7 py-3.5 bg-cyan-500 hover:bg-cyan-400 text-[#06090F] font-bold text-sm rounded transition-all hover:scale-[1.02] shadow-lg shadow-cyan-500/20"
+          >
+            <LogIn className="w-4 h-4" />
+            Sign In as Investigator
+            <ChevronRight className="w-4 h-4" />
+          </button>
+
+          {/* Recent activity ticker */}
+          <div className="w-full max-w-xl rounded border border-white/[0.06] bg-white/[0.02] px-4 py-3 flex items-center gap-3">
+            <Activity className="w-3.5 h-3.5 text-slate-500 shrink-0 animate-pulse" />
+            <div className="text-[11px] font-mono text-slate-500 truncate">
+              <span className="text-slate-400">LATEST · </span>
+              FUSION ALERT ALT-8841 &mdash; INDRA_47 cross-platform identity correlated at 91% confidence across SimulatedMarket-A and Telegram @indra_ops
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ════════════════════════════════
+          LOGIN MODAL
+          ════════════════════════════════ */}
+      {showLogin && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          onClick={(e) => { if (e.target === e.currentTarget) setShowLogin(false); }}
         >
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-500 via-purple-600 to-blue-600 p-[1.5px] shadow-lg shadow-purple-950/40">
-            <div className="w-full h-full bg-[#070B14] rounded-[10px] flex items-center justify-center font-black text-rose-400 text-base">
-              N
-            </div>
-          </div>
-          <div className="flex items-center space-x-2">
-            <span className="font-mono font-black text-slate-100 text-base tracking-widest">
-              NARCO-FUSION
-            </span>
-            <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-400 border border-cyan-800 font-bold uppercase">
-              AI OPS
-            </span>
-          </div>
-        </div>
+          <div className="w-full max-w-sm bg-[#0A0E17] border border-white/[0.08] rounded-xl shadow-2xl overflow-hidden">
 
-        {/* Header Links */}
-        <nav className="hidden md:flex items-center space-x-8 text-xs font-mono text-slate-400">
-          <a href="#features" className="hover:text-cyan-300 transition-colors">Features</a>
-          <a href="#options" className="hover:text-cyan-300 transition-colors">Modules</a>
-          <a href="#architecture" className="hover:text-cyan-300 transition-colors">Architecture</a>
-          <button 
-            onClick={onStartDemoTour}
-            className="hover:text-amber-400 transition-colors flex items-center space-x-1"
-          >
-            <Zap className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-            <span>Jury Demo Tour</span>
-          </button>
-        </nav>
-
-        {/* Enter Platform CTA */}
-        <div className="flex items-center space-x-3">
-          <button
-            onClick={() => onNavigate('home')}
-            className="px-5 py-2 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/60 hover:border-blue-400 text-blue-300 font-mono text-xs font-bold transition-all shadow-md shadow-blue-950/50"
-          >
-            Enter Platform
-          </button>
-        </div>
-      </header>
-
-      {/* 2. Hero Section */}
-      <section className="relative z-20 max-w-5xl mx-auto px-6 pt-24 pb-20 text-center flex flex-col items-center space-y-7">
-        {/* Glowing Pill Badge */}
-        <div className="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-blue-950/60 border border-blue-600/40 text-blue-300 text-xs font-mono tracking-wider shadow-inner">
-          <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-          <span className="font-semibold uppercase text-[11px]">DIGITAL NARCOTICS FORENSICS REDEFINED</span>
-        </div>
-
-        {/* Main Headline */}
-        <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-slate-100 tracking-tight leading-[1.15]">
-          AI-Assisted Digital
-          <br />
-          <span className="bg-gradient-to-r from-blue-400 via-cyan-300 to-indigo-400 bg-clip-text text-transparent">
-            Drug Investigation Platform
-          </span>
-        </h1>
-
-        {/* Subtitle */}
-        <p className="max-w-2xl text-slate-400 text-sm sm:text-base leading-relaxed font-sans">
-          Transform digital evidence into actionable intelligence through automated analysis, entity extraction, cryptocurrency tracing, and multi-source timeline reconstruction.
-        </p>
-
-        {/* CTA Buttons */}
-        <div className="flex flex-wrap items-center justify-center gap-4 pt-2 font-mono">
-          <button
-            onClick={() => onNavigate('investigations')}
-            className="flex items-center space-x-2 px-7 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm transition-all shadow-xl shadow-blue-600/30 hover:scale-[1.02]"
-          >
-            <span>Launch Investigation</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
-
-          <button
-            onClick={() => onNavigate('home')}
-            className="px-6 py-3.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 text-slate-200 font-bold text-sm transition-all hover:scale-[1.02]"
-          >
-            Explore Features
-          </button>
-        </div>
-      </section>
-
-      {/* 3. Direct Options Grid (4 Core Pathways) */}
-      <section id="options" className="relative z-20 max-w-6xl mx-auto px-6 py-12 space-y-6 font-mono">
-        <div className="text-center space-y-1.5">
-          <span className="text-xs text-cyan-400 font-bold uppercase tracking-wider">DIRECT ACCESS WORKSPACES</span>
-          <h2 className="text-2xl font-bold text-slate-100">Select an Intelligence Module</h2>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-          {/* Card 1: Home Command Center */}
-          <div
-            onClick={() => onNavigate('home')}
-            className="p-6 rounded-2xl bg-[#090E1A]/80 border border-cyan-800/40 hover:border-cyan-400 transition-all cursor-pointer group shadow-xl flex flex-col justify-between space-y-4 hover:scale-[1.02]"
-          >
-            <div className="space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-cyan-950 border border-cyan-700/60 flex items-center justify-center text-cyan-400 group-hover:scale-110 transition-transform">
-                <Activity className="w-5 h-5" />
+            {/* Modal header */}
+            <div className="px-6 pt-6 pb-4 border-b border-white/[0.06] flex items-center gap-3">
+              <div className="w-8 h-8 rounded bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+                <Shield className="w-4 h-4 text-cyan-400" />
               </div>
               <div>
-                <span className="text-[10px] text-cyan-400 block uppercase font-bold">localhost:5173/home</span>
-                <h3 className="font-bold text-slate-100 text-base group-hover:text-cyan-300">Command Center</h3>
+                <div className="text-[13px] font-bold text-slate-100 font-mono tracking-wide">SECURE ACCESS</div>
+                <div className="text-[11px] text-slate-500">Chandigarh Police · Narcotics Division</div>
               </div>
-              <p className="text-xs text-slate-400 leading-relaxed font-sans">
-                Executive threat monitoring, critical alerts triage, live darknet feeds, and platform-wide metrics.
-              </p>
             </div>
-            <div className="flex items-center space-x-1 text-cyan-400 text-xs font-bold pt-2 border-t border-slate-800">
-              <span>Open Dashboard</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </div>
-          </div>
 
-          {/* Card 2: Investigation Panel */}
-          <div
-            onClick={() => onNavigate('investigations')}
-            className="p-6 rounded-2xl bg-[#090E1A]/80 border border-emerald-800/40 hover:border-emerald-400 transition-all cursor-pointer group shadow-xl flex flex-col justify-between space-y-4 hover:scale-[1.02]"
-          >
-            <div className="space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-950 border border-emerald-700/60 flex items-center justify-center text-emerald-400 group-hover:scale-110 transition-transform">
-                <Briefcase className="w-5 h-5" />
+            {/* Modal body */}
+            <div className="px-6 py-5 space-y-5">
+
+              {/* Officer select */}
+              <div className="space-y-2">
+                <label className="text-[10px] font-mono text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                  <User className="w-3 h-3" /> Officer Identity
+                </label>
+                <div className="space-y-1.5">
+                  {ROLES.map(r => (
+                    <button
+                      key={r.value}
+                      onClick={() => setSelectedRole(r)}
+                      className={`w-full flex items-start gap-3 px-3.5 py-3 rounded border text-left transition-all ${
+                        selectedRole.value === r.value
+                          ? 'border-cyan-500/40 bg-cyan-500/8 text-slate-100'
+                          : 'border-white/[0.06] bg-white/[0.02] text-slate-400 hover:border-white/[0.12] hover:text-slate-300'
+                      }`}
+                    >
+                      <div className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${selectedRole.value === r.value ? 'bg-cyan-400' : 'bg-slate-700'}`} />
+                      <div>
+                        <div className="text-[12px] font-semibold">{r.label}</div>
+                        <div className="text-[10px] text-slate-500 font-mono">{r.rank} · {r.badge}</div>
+                        <div className="text-[10px] text-slate-600 mt-0.5">{r.access}</div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
               </div>
-              <div>
-                <span className="text-[10px] text-emerald-400 block uppercase font-bold">localhost:5173/investigation-panel</span>
-                <h3 className="font-bold text-slate-100 text-base group-hover:text-emerald-300">Investigation Workspace</h3>
+
+              {/* PIN input */}
+              <div className="space-y-2">
+                <label className="text-[10px] font-mono text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                  <Lock className="w-3 h-3" /> Access PIN
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPin ? 'text' : 'password'}
+                    value={pin}
+                    onChange={e => { setPin(e.target.value.slice(0, 4)); setLoginError(''); }}
+                    onKeyDown={e => e.key === 'Enter' && handleLogin()}
+                    maxLength={4}
+                    placeholder="••••"
+                    className="w-full bg-white/[0.03] border border-white/[0.08] focus:border-cyan-500/50 rounded px-3.5 py-2.5 text-slate-200 text-sm font-mono tracking-[0.4em] outline-none placeholder:tracking-normal placeholder:text-slate-600 transition-colors"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPin(p => !p)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-600 hover:text-slate-400"
+                  >
+                    {showPin ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+                {loginError && (
+                  <p className="text-[11px] text-rose-400 font-mono flex items-center gap-1.5">
+                    <AlertTriangle className="w-3 h-3" /> {loginError}
+                  </p>
+                )}
+                <p className="text-[10px] text-slate-600 font-mono">For prototype: enter any 4-digit PIN</p>
               </div>
-              <p className="text-xs text-slate-400 leading-relaxed font-sans">
-                Case #CHD-DRUG-0047 folder with 19 sealed digital exhibits, suspect targets, and prosecution summaries.
-              </p>
             </div>
-            <div className="flex items-center space-x-1 text-emerald-400 text-xs font-bold pt-2 border-t border-slate-800">
-              <span>Enter Workspace</span>
-              <ChevronRight className="w-3.5 h-3.5" />
+
+            {/* Modal footer */}
+            <div className="px-6 pb-6 flex gap-2.5">
+              <button
+                onClick={() => setShowLogin(false)}
+                className="flex-1 py-2.5 rounded border border-white/[0.07] text-slate-500 hover:text-slate-300 text-[12px] font-mono transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleLogin}
+                disabled={loginLoading}
+                className="flex-2 flex-[2] flex items-center justify-center gap-2 py-2.5 rounded bg-cyan-500 hover:bg-cyan-400 disabled:opacity-60 text-[#06090F] font-bold text-[12px] font-mono transition-all"
+              >
+                {loginLoading ? (
+                  <>
+                    <span className="w-3.5 h-3.5 border-2 border-[#06090F]/30 border-t-[#06090F] rounded-full animate-spin" />
+                    Authenticating…
+                  </>
+                ) : (
+                  <>
+                    <LogIn className="w-3.5 h-3.5" />
+                    Authenticate & Enter
+                  </>
+                )}
+              </button>
             </div>
-          </div>
-
-          {/* Card 3: Agents & Network Graph */}
-          <div
-            onClick={() => onNavigate('agents')}
-            className="p-6 rounded-2xl bg-[#090E1A]/80 border border-purple-800/40 hover:border-purple-400 transition-all cursor-pointer group shadow-xl flex flex-col justify-between space-y-4 hover:scale-[1.02]"
-          >
-            <div className="space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-purple-950 border border-purple-700/60 flex items-center justify-center text-purple-400 group-hover:scale-110 transition-transform">
-                <Share2 className="w-5 h-5" />
-              </div>
-              <div>
-                <span className="text-[10px] text-purple-400 block uppercase font-bold">localhost:5173/agents</span>
-                <h3 className="font-bold text-slate-100 text-base group-hover:text-purple-300">Agents & Network Graph</h3>
-              </div>
-              <p className="text-xs text-slate-400 leading-relaxed font-sans">
-                6 domain-specific Cytoscape visualizers for suspects, wallets, drug listings, and encrypted comms.
-              </p>
-            </div>
-            <div className="flex items-center space-x-1 text-purple-400 text-xs font-bold pt-2 border-t border-slate-800">
-              <span>Explore Graphs</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </div>
-          </div>
-
-          {/* Card 4: Report Generation */}
-          <div
-            onClick={() => onNavigate('report-generation')}
-            className="p-6 rounded-2xl bg-[#090E1A]/80 border border-blue-800/40 hover:border-blue-400 transition-all cursor-pointer group shadow-xl flex flex-col justify-between space-y-4 hover:scale-[1.02]"
-          >
-            <div className="space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-blue-950 border border-blue-700/60 flex items-center justify-center text-blue-400 group-hover:scale-110 transition-transform">
-                <FileText className="w-5 h-5" />
-              </div>
-              <div>
-                <span className="text-[10px] text-blue-400 block uppercase font-bold">localhost:5173/report-generation</span>
-                <h3 className="font-bold text-slate-100 text-base group-hover:text-blue-300">Report Generation</h3>
-              </div>
-              <p className="text-xs text-slate-400 leading-relaxed font-sans">
-                Generate, customize, print, and export 10-section official police intelligence dossiers with SHA-256 evidence index.
-              </p>
-            </div>
-            <div className="flex items-center space-x-1 text-blue-400 text-xs font-bold pt-2 border-t border-slate-800">
-              <span>Generate Dossier</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 4. Core Features Section */}
-      <section id="features" className="relative z-20 max-w-6xl mx-auto px-6 py-16 space-y-8">
-        <div className="text-center space-y-2">
-          <span className="text-xs font-mono text-cyan-400 font-bold uppercase tracking-wider">BUILT FOR LAW ENFORCEMENT</span>
-          <h2 className="text-3xl font-bold text-slate-100">End-to-End Digital Narcotics Forensics</h2>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 font-mono">
-          <div className="p-6 rounded-2xl bg-slate-900/50 border border-slate-800 space-y-3">
-            <Coins className="w-6 h-6 text-amber-400" />
-            <h3 className="text-sm font-bold text-slate-100">Cryptocurrency Ledger Tracing</h3>
-            <p className="text-xs text-slate-400 font-sans leading-relaxed">
-              Automated on-chain correlation linking vendor wallets (18.64 BTC), precursor payments (3.45 BTC), and cold storage sweeps.
-            </p>
-          </div>
-
-          <div className="p-6 rounded-2xl bg-slate-900/50 border border-slate-800 space-y-3">
-            <Pill className="w-6 h-6 text-emerald-400" />
-            <h3 className="text-sm font-bold text-slate-100">Chemical Impurity Matching</h3>
-            <p className="text-xs text-slate-400 font-sans leading-relaxed">
-              GC-MS forensic report integration matching laboratory crystal synthesis signatures with seized dead-drop batches.
-            </p>
-          </div>
-
-          <div className="p-6 rounded-2xl bg-slate-900/50 border border-slate-800 space-y-3">
-            <Lock className="w-6 h-6 text-cyan-400" />
-            <h3 className="text-sm font-bold text-slate-100">WORM Evidence Vault</h3>
-            <p className="text-xs text-slate-400 font-sans leading-relaxed">
-              Write-Once-Read-Many cryptographic vault sealing every crawled snapshot with SHA-256 checksums ready for legal prosecution.
-            </p>
           </div>
         </div>
-      </section>
-
-      {/* 5. Footer */}
-      <footer className="relative z-20 border-t border-slate-800/80 py-8 px-6 text-center text-xs font-mono text-slate-500">
-        <p>CHANDIGARH POLICE HACKATHON — TRACK 3 PROTOTYPE</p>
-        <p className="text-[11px] text-slate-600 mt-1">Platform for Detection of Illicit Drug Sales on Darknet and Other Encrypted Platforms</p>
-      </footer>
+      )}
     </div>
   );
 };

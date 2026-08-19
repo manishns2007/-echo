@@ -1,16 +1,16 @@
+/* ── Google Fonts: Inter for UI, JetBrains Mono for data ── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* ── Google Fonts: Inter for UI, JetBrains Mono for data ── */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 @layer base {
   :root {
     --color-bg:      #06090F;
     --color-surface: #0A0E17;
     --color-border:  rgba(255,255,255,0.06);
-    --color-accent:  #22d3ee;   /* cyan-400 */
+    --color-accent:  #22d3ee;
   }
 
   html {
@@ -19,19 +19,17 @@
 
   body {
     background-color: var(--color-bg);
-    color: #cbd5e1;          /* slate-300 */
+    color: #cbd5e1;
     font-family: 'Inter', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
   }
 
-  /* Mono spans / code / kbd */
   code, kbd, pre, .font-mono {
     font-family: 'JetBrains Mono', 'Fira Code', monospace !important;
   }
 
-  /* Text selection */
   ::selection {
     background: rgba(34, 211, 238, 0.18);
     color: #e2f8ff;
@@ -44,13 +42,13 @@
 ::-webkit-scrollbar-thumb  { background: rgba(255,255,255,0.08); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(34, 211, 238, 0.3); }
 
-/* ── Utility: subtle dot-grid background ── */
+/* ── Subtle dot-grid background ── */
 .dot-grid {
   background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
   background-size: 24px 24px;
 }
 
-/* ── Utility: glass card ── */
+/* ── Glass card ── */
 .glass-card {
   background: rgba(10, 14, 23, 0.80);
   backdrop-filter: blur(12px);
@@ -76,18 +74,12 @@
          bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 uppercase;
 }
 
-/* ── Page section header ── */
-.page-title {
-  @apply text-base font-semibold text-slate-100 tracking-tight;
-}
-.page-subtitle {
-  @apply text-xs text-slate-500 font-mono;
-}
+/* ── Page headers ── */
+.page-title    { @apply text-base font-semibold text-slate-100 tracking-tight; }
+.page-subtitle { @apply text-xs text-slate-500 font-mono; }
 
-/* ── Data table base ── */
-.intel-table {
-  @apply w-full text-xs font-mono border-collapse;
-}
+/* ── Intel data table ── */
+.intel-table { @apply w-full text-xs font-mono border-collapse; }
 .intel-table th {
   @apply text-[10px] text-slate-500 font-semibold tracking-[0.12em] uppercase
          px-3 py-2.5 text-left border-b border-white/[0.06] bg-white/[0.02];

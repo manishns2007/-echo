@@ -14,7 +14,7 @@ import {
   History,
   BellRing,
   FileText,
-  LogIn,
+  ArrowLeft,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -23,117 +23,108 @@ interface SidebarProps {
   alertCount: number;
 }
 
-const navSections = [
+const sections = [
   {
-    title: 'OPERATIONS',
+    heading: 'Operations',
     items: [
-      { id: 'home', label: 'Command Center', icon: LayoutDashboard },
-      { id: 'live-feed', label: 'Live Intel Stream', icon: Radio, live: true },
-      { id: 'alert-center', label: 'Alert Triage', icon: BellRing, alertBadge: true },
+      { id: 'home',         label: 'Command Center',    icon: LayoutDashboard },
+      { id: 'live-feed',    label: 'Live Intel Stream', icon: Radio,   live: true },
+      { id: 'alert-center', label: 'Alert Triage',      icon: BellRing, alerts: true },
     ],
   },
   {
-    title: 'INTELLIGENCE',
+    heading: 'Intelligence',
     items: [
-      { id: 'agents', label: 'Network Graph', icon: Share2 },
-      { id: 'entity-intel', label: 'Suspect Directory', icon: Users },
-      { id: 'crypto-intel', label: 'Crypto Tracker', icon: Coins },
-      { id: 'drug-intel', label: 'Drug Listings', icon: Pill },
-      { id: 'encrypted-platforms', label: 'Encrypted Comms', icon: MessageSquareCode },
-      { id: 'correlation-engine', label: 'Correlation Engine', icon: Sliders },
+      { id: 'agents',               label: 'Network Graph',    icon: Share2 },
+      { id: 'entity-intel',         label: 'Suspect Directory',icon: Users },
+      { id: 'crypto-intel',         label: 'Crypto Tracker',   icon: Coins },
+      { id: 'drug-intel',           label: 'Drug Listings',    icon: Pill },
+      { id: 'encrypted-platforms',  label: 'Encrypted Comms',  icon: MessageSquareCode },
+      { id: 'correlation-engine',   label: 'Correlation',      icon: Sliders },
     ],
   },
   {
-    title: 'CASEWORK',
+    heading: 'Casework',
     items: [
-      { id: 'investigations', label: 'Investigations', icon: Briefcase },
-      { id: 'report-generation', label: 'Report Studio', icon: FileText },
-      { id: 'timeline', label: 'Event Timeline', icon: Clock },
-      { id: 'evidence-vault', label: 'Evidence Vault', icon: Database },
-      { id: 'audit-logs', label: 'Audit Log', icon: History },
+      { id: 'investigations',   label: 'Investigations', icon: Briefcase },
+      { id: 'report-generation',label: 'Report Studio',  icon: FileText },
+      { id: 'timeline',         label: 'Timeline',        icon: Clock },
+      { id: 'evidence-vault',   label: 'Evidence Vault',  icon: Database },
+      { id: 'audit-logs',       label: 'Audit Log',       icon: History },
     ],
   },
 ];
 
-export const Sidebar: React.FC<SidebarProps> = ({
-  activeView,
-  onNavigate,
-  alertCount,
-}) => {
+export const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, alertCount }) => {
   return (
-    <aside className="w-56 bg-[#06090F] border-r border-white/[0.06] flex flex-col font-mono text-xs flex-shrink-0 select-none">
+    <aside className="w-56 bg-[#06090F] border-r border-white/[0.05] flex flex-col shrink-0 select-none">
 
-      {/* Navigation */}
-      <nav className="flex-1 py-4 px-2.5 space-y-5 overflow-y-auto">
-        {navSections.map((section) => (
-          <div key={section.title}>
-            {/* Section header */}
-            <div className="px-2.5 mb-1.5 text-[9px] font-bold text-slate-600 tracking-[0.15em] uppercase">
-              {section.title}
+      {/* Scrollable nav */}
+      <nav className="flex-1 overflow-y-auto py-4">
+        {sections.map((sec, si) => (
+          <div key={si} className={si > 0 ? 'mt-3' : ''}>
+
+            {/* Section label — Reddit-style small caps */}
+            <div className="px-4 pt-1 pb-1.5 text-[10px] font-semibold text-slate-600 tracking-[0.14em] uppercase">
+              {sec.heading}
             </div>
 
-            {/* Items */}
-            <div className="space-y-0.5">
-              {section.items.map((item) => {
-                const Icon = item.icon;
-                const isActive =
-                  activeView === item.id ||
-                  (item.id === 'home' && activeView === 'command-center') ||
-                  (item.id === 'agents' && activeView === 'network-graph');
+            {sec.items.map(item => {
+              const Icon = item.icon;
+              const isActive =
+                activeView === item.id ||
+                (item.id === 'home' && activeView === 'command-center') ||
+                (item.id === 'agents' && activeView === 'network-graph');
+              const hasAlerts = 'alerts' in item && item.alerts && alertCount > 0;
+              const isLive    = 'live' in item && item.live;
 
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => onNavigate(item.id)}
-                    className={`w-full flex items-center justify-between px-2.5 py-2 rounded transition-all text-left ${
-                      isActive
-                        ? 'bg-cyan-500/10 text-cyan-300 border-l-2 border-cyan-500 pl-2'
-                        : 'text-slate-500 hover:text-slate-200 hover:bg-white/[0.04] border-l-2 border-transparent'
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => onNavigate(item.id)}
+                  className={`w-full flex items-center gap-3 px-4 py-[9px] text-left transition-colors
+                    ${isActive
+                      ? 'bg-white/[0.06] text-slate-100'
+                      : 'text-slate-500 hover:text-slate-200 hover:bg-white/[0.04]'
                     }`}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <Icon
-                        className={`w-3.5 h-3.5 shrink-0 ${
-                          isActive ? 'text-cyan-400' : 'text-slate-600'
-                        }`}
-                      />
-                      <span className={`text-[11px] ${isActive ? 'font-semibold' : 'font-normal'}`}>
-                        {item.label}
-                      </span>
-                    </div>
+                >
+                  <Icon
+                    className={`w-[18px] h-[18px] shrink-0 ${isActive ? 'text-cyan-400' : 'text-slate-600'}`}
+                  />
+                  <span className={`text-[13px] flex-1 ${isActive ? 'font-semibold' : 'font-normal'}`}>
+                    {item.label}
+                  </span>
 
-                    {/* Live pulse dot */}
-                    {'live' in item && item.live && (
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-                    )}
+                  {/* Live pulse */}
+                  {isLive && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                  )}
 
-                    {/* Alert count badge */}
-                    {'alertBadge' in item && item.alertBadge && alertCount > 0 && (
-                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-rose-500/15 text-rose-400 border border-rose-500/25 shrink-0 min-w-[18px] text-center">
-                        {alertCount}
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
+                  {/* Alert count */}
+                  {hasAlerts && (
+                    <span className="text-[10px] font-bold min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-rose-500/15 text-rose-400 border border-rose-500/20 shrink-0 px-1">
+                      {alertCount}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </div>
         ))}
       </nav>
 
       {/* Footer */}
-      <div className="px-3.5 py-3 border-t border-white/[0.06] flex items-center justify-between">
-        <div className="flex items-center gap-1.5">
+      <div className="border-t border-white/[0.05] px-4 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-2 text-[11px] text-slate-600">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-          <span className="text-[10px] text-slate-600 tracking-wide">SECURE</span>
+          <span>Secure</span>
         </div>
         <button
           onClick={() => onNavigate('landing')}
-          className="flex items-center gap-1.5 text-[10px] text-slate-600 hover:text-slate-400 transition-colors"
-          title="Portal"
+          className="flex items-center gap-1.5 text-[11px] text-slate-600 hover:text-slate-400 transition-colors"
         >
-          <LogIn className="w-3 h-3" />
-          <span>Portal</span>
+          <ArrowLeft className="w-3 h-3" />
+          Portal
         </button>
       </div>
     </aside>
