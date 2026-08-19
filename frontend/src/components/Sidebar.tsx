@@ -114,17 +114,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, alertC
       </nav>
 
       {/* Footer */}
-      <div className="border-t border-white/[0.05] px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-2 text-[11px] text-slate-600">
+      <div className="border-t border-white/[0.05] px-3 py-3 space-y-2">
+        <div className="flex items-center gap-2 text-[10px] text-slate-600 px-1">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-          <span>Secure</span>
+          <span>SECURE GATEWAY · v2.4</span>
         </div>
         <button
           onClick={() => onNavigate('landing')}
-          className="flex items-center gap-1.5 text-[11px] text-slate-600 hover:text-slate-400 transition-colors"
+          className="w-full flex items-center gap-2.5 px-3 py-2 rounded border border-white/[0.07] bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/[0.12] text-slate-400 hover:text-slate-200 text-[12px] transition-all"
         >
-          <ArrowLeft className="w-3 h-3" />
-          Portal
+          <ArrowLeft className="w-3.5 h-3.5 shrink-0" />
+          Back to Portal
         </button>
       </div>
     </aside>

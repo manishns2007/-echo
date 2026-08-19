@@ -5,6 +5,7 @@ import {
   Sparkles,
   ClipboardList,
   Radio,
+  LogOut,
 } from 'lucide-react';
 import { SystemStats } from '../types/intelligence';
 
@@ -117,6 +118,19 @@ export const Navbar: React.FC<NavbarProps> = ({
           <option value="Analyst">Analyst P. Kaur</option>
           <option value="Administrator">Admin-01</option>
         </select>
+
+        {/* Divider */}
+        <div className="h-5 w-px bg-white/[0.07] mx-1" />
+
+        {/* Back to Portal */}
+        <button
+          onClick={() => onNavigate('landing')}
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded border border-white/[0.07] bg-white/[0.03] hover:border-rose-500/30 hover:bg-rose-500/5 text-slate-500 hover:text-rose-400 text-[11px] font-mono transition-all"
+          title="Back to Login Portal"
+        >
+          <LogOut className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">Portal</span>
+        </button>
       </div>
     </header>
   );
