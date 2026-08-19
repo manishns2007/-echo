@@ -510,8 +510,12 @@ def get_full_network():
             }
         })
 
+    # Filter edges to only those whose source and target exist in nodes
+    node_id_set = {n["data"]["id"] for n in nodes}
+    valid_edges = [e for e in edges if e["data"]["source"] in node_id_set and e["data"]["target"] in node_id_set]
+
     conn.close()
-    return {"nodes": nodes, "edges": edges}
+    return {"nodes": nodes, "edges": valid_edges}
 
 # ----------------- 6. CRYPTOCURRENCY INTELLIGENCE -----------------
 @app.get("/api/crypto")
