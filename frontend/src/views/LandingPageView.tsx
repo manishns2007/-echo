@@ -1,10 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Shield,
-  LayoutDashboard,
-  Share2,
-  Briefcase,
-  FileText,
   LogIn,
   Eye,
   EyeOff,
@@ -13,6 +8,7 @@ import {
   ChevronRight,
   AlertTriangle,
   Clock,
+  Shield,
 } from 'lucide-react';
 
 interface LandingPageViewProps {
@@ -139,64 +135,11 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onNavigate }) 
         </div>
       </div>
 
-      {/* ── Main layout: left panel + right content ── */}
+      {/* ── Main content — full width ── */}
       <div className="flex-1 flex relative z-10">
 
         {/* ════════════════════════════════
-            LEFT PANEL — Reddit-style navigation
-            ════════════════════════════════ */}
-        <div className="w-72 border-r border-white/[0.05] flex flex-col py-8 px-5 gap-8 shrink-0">
-
-          {/* Brand */}
-          <div className="space-y-1">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
-                <Shield className="w-5 h-5 text-cyan-400" />
-              </div>
-              <div>
-                <div className="text-[15px] font-bold tracking-wide text-slate-100 font-mono">NARCO-FUSION</div>
-                <div className="text-[10px] text-slate-500">v2.4 — Intelligence Platform</div>
-              </div>
-            </div>
-            <div className="h-px bg-white/[0.05] mt-4" />
-          </div>
-
-          {/* Module links — Reddit style */}
-          <nav className="space-y-1">
-            {MODULES.map(m => {
-              const Icon = m.icon;
-              return (
-                <button
-                  key={m.id}
-                  onClick={() => setShowLogin(true)}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded hover:bg-white/[0.05] text-left text-slate-400 hover:text-slate-100 transition-colors group"
-                >
-                  <Icon className="w-5 h-5 text-slate-500 group-hover:text-cyan-400 transition-colors shrink-0" />
-                  <span className="text-[13px] font-medium text-slate-300 group-hover:text-slate-100">{m.label}</span>
-                </button>
-              );
-            })}
-          </nav>
-
-          <div className="h-px bg-white/[0.05]" />
-
-          {/* Login CTA */}
-          <button
-            onClick={() => setShowLogin(true)}
-            className="flex items-center gap-3 px-3 py-2.5 rounded bg-cyan-500/10 hover:bg-cyan-500/15 border border-cyan-500/20 hover:border-cyan-500/40 text-cyan-300 transition-all group"
-          >
-            <LogIn className="w-5 h-5 shrink-0" />
-            <div className="text-left">
-              <div className="text-[13px] font-semibold">Sign In</div>
-              <div className="text-[10px] text-cyan-500/70">Authenticate with badge PIN</div>
-            </div>
-          </button>
-
-          {/* System indicators removed */}
-        </div>
-
-        {/* ════════════════════════════════
-            RIGHT CONTENT — Dynamic hero
+            HERO CONTENT
             ════════════════════════════════ */}
         <div className="flex-1 flex flex-col items-center justify-center px-8 py-12 gap-10">
 
